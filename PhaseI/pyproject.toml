@@ -1,0 +1,10 @@
+[project]
+name = "console-todo-app"
+version = "1.0.0"
+description = "A console-based todo application with in-memory storage"
+readme = "README.md"
+requires-python = ">=3.8"
+dependencies = []
+
+[project.scripts]
+console-todo = "app.todo_app:main"

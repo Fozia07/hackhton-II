@@ -1,55 +1,77 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+<!--
+Sync Impact Report:
+- Version change: N/A → 1.0.0 (initial creation)
+- Added sections: All principles and governance sections
+- Templates requiring updates: N/A (this is the initial constitution)
+- Follow-up TODOs: None
+-->
+# Spec-Driven Todo Application Constitution
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### Spec-Driven Development
+All implementation must follow written specifications; Every feature must map to an explicit spec requirement; No development without corresponding specification.
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+### Incremental Evolution
+Phased delivery from console → web → AI agent → Kubernetes → cloud; Each phase must remain functional before progressing; No skipping phases; Reproducibility with each phase independently runnable.
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+### AI-Native Design
+Event-driven systems with agents and tools as first-class citizens; Claude Code as primary implementation assistant; Natural language interfaces preferred where applicable.
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+### Code Quality and Documentation
+Readable, modular, and well-documented code required; APIs must be well-defined and versioned; Security best practices applied where relevant (auth, secrets, access control).
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+### Architecture-First Approach
+Microservices architecture from Phase III onward; Kafka for event streaming; Dapr for pub/sub, state management, and service invocation; Clear separation between frontend, backend, AI agents, and infrastructure.
 
-### [PRINCIPLE_6_NAME]
+### Container-First Deployment
+Containerized services using Docker; Kubernetes manifests or Helm charts required; Local testing on Minikube before cloud deployment; CI/CD pipelines via GitHub Actions.
 
+## Architecture Standards
 
-[PRINCIPLE__DESCRIPTION]
+### Technology Stack Requirements
+- Phase I: In-memory Python console Todo App
+- Phase II: Full-stack web app with persistent storage
+- Phase III: AI-powered Todo chatbot using OpenAI Agents SDK + MCP server
+- Phase IV: Local Kubernetes deployment (Minikube + Helm)
+- Phase V: Cloud Kubernetes deployment (AKS/GKE/DO)
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+### Event-Driven Systems
+- Kafka used for event streaming (tasks, reminders, audit logs)
+- Dapr used for pub/sub, state management, and service invocation
+- Event-driven interactions preferred over tight coupling in advanced phases
+- Stateless services where possible
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
+### Deployment Policies
+- Public GitHub repository mandatory
+- Monitoring and logging enabled in cloud phase
+- Containerized services using Docker
+- Kubernetes manifests or Helm charts required
 
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
+## Development Workflow
 
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+### Spec-Driven Process
+- Specs must exist before implementation
+- Every feature must map to an explicit spec requirement
+- Claude Code must be used as the primary implementation assistant
+- Each phase must remain functional before progressing
+
+### Review Process
+- Code reviews must verify compliance with spec requirements
+- API contracts must be versioned and documented
+- Event-driven features must be validated through Kafka and Dapr
+- Kubernetes deployments must be tested locally before cloud deployment
+
+### Quality Gates
+- All phases implemented according to specs
+- Basic Todo MVP fully functional
+- AI chatbot correctly manages tasks via natural language
+- Event-driven features working via Kafka and Dapr
+- Kubernetes deployments successful (local + cloud)
+- Project is demo-ready and reproducible
 
 ## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
+All development must strictly follow spec-driven development principles. No implementation without corresponding specification. Architecture decisions must align with microservices principles from Phase III onward. Event-driven systems using Kafka and Dapr are mandatory from Phase III. Container-first deployment strategy must be followed with Docker and Kubernetes. Public GitHub repository is required for transparency and collaboration.
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+**Version**: 1.0.0 | **Ratified**: 2025-01-01 | **Last Amended**: 2025-12-31
