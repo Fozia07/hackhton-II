@@ -1,16 +1,30 @@
 """
-Command-line interface for the console todo application.
+Enhanced command-line interface for the console todo application.
 
-This module handles user input and provides a command-line interface for the todo application.
+This module handles user input and provides an enhanced command-line interface for the todo application.
 """
+
 import re
+import sys
+import os
 from typing import Tuple, Optional
+
+# Add the PhaseI directory to the Python path to resolve imports
+phase_i_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.insert(0, phase_i_dir)
+
 from app.services.task_service import TaskService
+from enhanced_cli.display_formatters import (
+    format_task_list, format_welcome_message, format_help_message,
+    format_error_message, format_confirmation_prompt
+)
+from enhanced_cli.command_parser import EnhancedCommandParser
+from enhanced_cli.interactive_session import InteractiveSession
 
 
 class CLIInterface:
     """
-    Command-line interface for interacting with the task service.
+    Enhanced command-line interface for interacting with the task service.
     """
 
     def __init__(self, task_service: TaskService):
@@ -22,51 +36,44 @@ class CLIInterface:
         """
         self.task_service = task_service
         self.running = True
+        self.command_parser = EnhancedCommandParser()
+        self.interactive_session = InteractiveSession()
+
+        # Command history functionality
+        self.command_history = []
+
+    def display_welcome(self):
+        """
+        Display the enhanced welcome message with usage instructions.
+        """
+        print(format_welcome_message())
 
     def display_help(self):
         """
-        Display help information for available commands.
+        Display the comprehensive help message with command descriptions.
         """
-        print("\nAvailable commands:")
-        print("  add \"task title\"     - Add a new task")
-        print("  list (or ls)         - List all tasks")
-        print("  update id \"new title\" - Update a task title")
-        print("  delete id            - Delete a task")
-        print("  complete id (or done) - Mark task as complete")
-        print("  incomplete id (or undo) - Mark task as incomplete")
-        print("  help (or ?)          - Show this help message")
-        print("  exit (or quit)       - Exit the application")
-        print()
+        print(format_help_message())
 
-    def parse_command(self, user_input: str) -> Tuple[str, list]:
+    def parse_command(self, user_input: str) -> Tuple[str, list, bool, list]:
         """
-        Parse the user input into command and arguments.
+        Parse the user input into command and arguments with enhanced error handling.
 
         Args:
             user_input (str): The raw user input
 
         Returns:
-            Tuple[str, list]: The command and list of arguments
+            Tuple[str, list, bool, list]: The command, arguments, validity, and suggestions
         """
-        user_input = user_input.strip()
-        if not user_input:
-            return "", []
+        command, args, is_valid, suggestions = self.command_parser.parse_command(user_input)
 
-        # Split command and arguments, handling quoted strings
-        parts = []
-        # This regex matches either quoted strings or unquoted words
-        for match in re.finditer(r'"([^"]*)"|\'([^\']*)\'|(\S+)', user_input):
-            # Get the first non-None group (handles both single and double quotes)
-            part = next(filter(None, match.groups()))
-            parts.append(part)
+        # Validate command arguments
+        if is_valid:
+            args_valid, error_msg = self.command_parser.validate_command_args(command, args)
+            if not args_valid:
+                is_valid = False
+                suggestions = [error_msg]
 
-        if not parts:
-            return "", []
-
-        command = parts[0].lower()
-        args = parts[1:]
-
-        return command, args
+        return command, args, is_valid, suggestions
 
     def handle_add(self, args: list):
         """
@@ -84,6 +91,8 @@ class CLIInterface:
         try:
             task = self.task_service.add_task(title)
             print(f"Task {task.id} added: {task.title} [PENDING]")
+            # Add command to history
+            self.interactive_session.add_command_to_history(f"add {title}")
         except ValueError as e:
             print(f"Error: {e}")
 
@@ -95,15 +104,10 @@ class CLIInterface:
             args (list): List of arguments for the list command
         """
         tasks = self.task_service.get_all_tasks()
-        if not tasks:
-            print("No tasks found.")
-            return
-
-        print("\nTask List:")
-        for task in tasks:
-            status = "x" if task.completed else " "
-            print(f"{task.id}. [{status}] {task.title}")
-        print()
+        formatted_output = format_task_list(tasks)
+        print(formatted_output)
+        # Add command to history
+        self.interactive_session.add_command_to_history("list")
 
     def handle_update(self, args: list):
         """
@@ -129,6 +133,8 @@ class CLIInterface:
             updated_task = self.task_service.update_task(task_id, new_title)
             if updated_task:
                 print(f"Task {task_id} updated to: {updated_task.title}")
+                # Add command to history
+                self.interactive_session.add_command_to_history(f"update {task_id} {new_title}")
             else:
                 print(f"Error: Task with ID {task_id} not found")
         except ValueError as e:
@@ -136,7 +142,7 @@ class CLIInterface:
 
     def handle_delete(self, args: list):
         """
-        Handle the delete command.
+        Handle the delete command with confirmation.
 
         Args:
             args (list): List of arguments for the delete command
@@ -152,11 +158,25 @@ class CLIInterface:
             print("Error: Task ID must be a number")
             return
 
-        deleted = self.task_service.delete_task(task_id)
-        if deleted:
-            print(f"Task {task_id} deleted")
-        else:
+        # Get the task to show in confirmation
+        task = self.task_service.get_task_by_id(task_id)
+        if not task:
             print(f"Error: Task with ID {task_id} not found")
+            return
+
+        # Show confirmation prompt
+        confirmation = input(format_confirmation_prompt("delete", f"task '{task.title}'")).strip().lower()
+
+        if confirmation in ['y', 'yes']:
+            deleted = self.task_service.delete_task(task_id)
+            if deleted:
+                print(f"Task {task_id} deleted")
+                # Add command to history
+                self.interactive_session.add_command_to_history(f"delete {task_id}")
+            else:
+                print(f"Error: Task with ID {task_id} not found")
+        else:
+            print("Deletion cancelled.")
 
     def handle_complete(self, args: list):
         """
@@ -179,6 +199,8 @@ class CLIInterface:
         completed = self.task_service.complete_task(task_id)
         if completed:
             print(f"Task {task_id} marked as complete")
+            # Add command to history
+            self.interactive_session.add_command_to_history(f"complete {task_id}")
         else:
             print(f"Error: Task with ID {task_id} not found")
 
@@ -203,6 +225,8 @@ class CLIInterface:
         incompleted = self.task_service.incomplete_task(task_id)
         if incompleted:
             print(f"Task {task_id} marked as incomplete")
+            # Add command to history
+            self.interactive_session.add_command_to_history(f"incomplete {task_id}")
         else:
             print(f"Error: Task with ID {task_id} not found")
 
@@ -233,14 +257,17 @@ class CLIInterface:
             self.running = False
             print("Goodbye!")
         else:
-            print(f"Error: Unknown command '{command}'. Type 'help' for available commands.")
+            # Handle invalid command with suggestions
+            suggestions = self.command_parser._get_command_suggestions(command)
+            error_msg = f"Unknown command '{command}'"
+            formatted_error = format_error_message(error_msg, suggestions)
+            print(formatted_error)
 
     def run(self):
         """
-        Run the command-line interface loop.
+        Run the enhanced command-line interface loop.
         """
-        print("Welcome to the Console Todo Application!")
-        print("Type 'help' for available commands or 'exit' to quit.")
+        self.display_welcome()
 
         while self.running:
             try:
@@ -248,7 +275,20 @@ class CLIInterface:
                 if not user_input:
                     continue
 
-                command, args = self.parse_command(user_input)
+                # Parse command with enhanced parser
+                command, args, is_valid, suggestions = self.parse_command(user_input)
+
+                if not is_valid and command != "":
+                    # Handle invalid command with suggestions
+                    error_msg = f"Unknown command '{command}'"
+                    formatted_error = format_error_message(error_msg, suggestions)
+                    print(formatted_error)
+                    continue
+
+                # Add command to history if valid
+                if command not in ["exit", "quit"]:
+                    self.interactive_session.add_command_to_history(user_input)
+
                 self.handle_command(command, args)
             except KeyboardInterrupt:
                 print("\nGoodbye!")

@@ -1,14 +1,21 @@
-# Phase I: Console Todo Application
+# Phase I: Enhanced Console Todo Application
 
-A simple, in-memory console-based todo application built with Python. This is Phase I of the multi-phase todo application project.
+A simple, in-memory console-based todo application built with Python. This is Phase I of the multi-phase todo application project with enhanced interactive CLI features.
 
 ## Features
 
 - Add, list, update, delete, and mark tasks as complete/incomplete
 - In-memory storage (no persistent data)
-- Command-line interface
+- Enhanced command-line interface with improved navigation
 - Sequential task IDs starting from 1
 - Runs in a uv-managed virtual environment
+- Enhanced visual indicators for task status ([x] for complete, [ ] for pending)
+- Improved welcome message with usage instructions
+- Comprehensive help system with detailed command descriptions
+- Helpful error messages with suggestions for corrections
+- Confirmation prompts for destructive operations (delete)
+- Command history functionality
+- Keyboard shortcuts for common operations
 
 ## Requirements
 
