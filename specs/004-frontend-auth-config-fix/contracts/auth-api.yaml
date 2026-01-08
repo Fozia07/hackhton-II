@@ -1,0 +1,50 @@
+openapi: 3.0.0
+info:
+  title: Authentication API Contract
+  version: 1.0.0
+  description: API contract for authentication flows with proper fetch configuration
+paths:
+  /api/auth/signup:
+    post:
+      summary: User signup endpoint
+      description: Handles user registration with proper fetch API configuration
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  minLength: 8
+                name:
+                  type: string
+      responses:
+        '200':
+          description: Successful signup
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  user:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      email:
+                        type: string
+                      name:
+                        type: string
+        '400':
+          description: Invalid input
+        '409':
+          description: User already exists
+      # Note: This contract assumes proper fetch API redirect configuration
+      # with valid redirect values: 'follow', 'error', or 'manual'
