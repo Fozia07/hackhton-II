@@ -8,7 +8,11 @@ const nextConfig = {
     root: process.cwd(), // Explicitly set the root to current working directory
   },
   // Use serverExternalPackages instead of the experimental option
-  serverExternalPackages: [],
+  serverExternalPackages: [
+    "better-auth", // Include better-auth in server external packages
+  ],
+  // Allow importing from src directory
+  outputFileTracingRoot: process.cwd(),
 };
 
 export default nextConfig;
