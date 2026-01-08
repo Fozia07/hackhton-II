@@ -2,7 +2,7 @@
 
 import { useAuth } from '@/hooks/useAuth'
 import { useRouter } from 'next/navigation'
-import { ReactNode, useEffect } from 'react'
+import { type ReactNode, useEffect } from 'react'
 
 interface ProtectedRouteProps {
   children: ReactNode

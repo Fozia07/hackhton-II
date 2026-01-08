@@ -1,4 +1,4 @@
-import { Task } from '@/types/task'
+import { type Task } from '@/types/task'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Button } from '@/components/ui/button'
 import { useToggleTaskComplete } from '@/hooks/useToggleTaskComplete'
@@ -29,7 +29,7 @@ export function TaskItem({ task }: TaskItemProps) {
     <div className={`flex items-center gap-3 p-4 border rounded-lg transition-all hover:shadow-md ${task.completed ? 'bg-green-50' : 'bg-white'}`}>
       <Checkbox
         checked={task.completed}
-        onCheckedChange={handleToggleComplete}
+        onChange={handleToggleComplete}
         disabled={toggleCompleteMutation.isPending || deleteTaskMutation.isPending}
       />
 

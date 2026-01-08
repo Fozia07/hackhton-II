@@ -1,7 +1,7 @@
 'use client'
 
-import { createContext, useContext, ReactNode, useState } from 'react'
-import { TaskFilter } from '@/types/task'
+import { createContext, useContext, type ReactNode, useState } from 'react'
+import { type TaskFilter } from '@/types/task'
 
 interface TaskFilterContextValue {
   filter: TaskFilter

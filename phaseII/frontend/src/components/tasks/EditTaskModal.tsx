@@ -3,7 +3,7 @@ import { Form, FormField } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { useState } from 'react'
-import { Task } from '@/types/task'
+import { type Task } from '@/types/task'
 import { useUpdateTask } from '@/hooks/useUpdateTask'
 
 interface EditTaskModalProps {

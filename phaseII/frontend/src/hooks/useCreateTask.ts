@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { api } from '@/lib/api/client'
-import { Task, CreateTaskInput } from '@/types/task'
+import { type Task, type CreateTaskInput } from '@/types/task'
 
 export function useCreateTask() {
   const queryClient = useQueryClient()
