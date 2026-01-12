@@ -3,6 +3,7 @@ import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import { ReactQueryClientProvider } from '@/components/providers/ReactQueryClientProvider'
 import { TaskFilterProvider } from '@/contexts/TaskFilterContext'
+import { AuthProviderWrapper } from '@/components/providers/AuthProviderWrapper'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -20,9 +21,9 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <ReactQueryClientProvider>
-          <TaskFilterProvider>
+          <AuthProviderWrapper>
             {children}
-          </TaskFilterProvider>
+          </AuthProviderWrapper>
         </ReactQueryClientProvider>
       </body>
     </html>

@@ -9,7 +9,7 @@ import { useRouter } from 'next/navigation'
 
 export function SignupForm() {
   const router = useRouter()
-  const [name, setName] = useState('')
+  const [username, setUsername] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
@@ -27,11 +27,23 @@ export function SignupForm() {
       return
     }
 
+    if (password.length < 8) {
+      setError('Password must be at least 8 characters')
+      setLoading(false)
+      return
+    }
+
+    if (username.length < 3) {
+      setError('Username must be at least 3 characters')
+      setLoading(false)
+      return
+    }
+
     try {
       const result = await signUp.email({
         email,
         password,
-        name,
+        name: username, // Backend expects name but uses it as username
       })
 
       if (result?.error) {
@@ -57,13 +69,15 @@ export function SignupForm() {
         </div>
       )}
 
-      <FormField label="Full Name" error="">
+      <FormField label="Username" error="">
         <Input
           type="text"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="John Doe"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          placeholder="johndoe"
           required
+          minLength={3}
+          maxLength={150}
         />
       </FormField>
 
@@ -84,6 +98,7 @@ export function SignupForm() {
           onChange={(e) => setPassword(e.target.value)}
           placeholder="••••••••"
           required
+          minLength={8}
         />
       </FormField>
 

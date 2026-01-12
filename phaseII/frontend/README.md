@@ -18,7 +18,7 @@ A responsive, authenticated web frontend for a multi-user Todo application built
 - **Styling**: Tailwind CSS
 - **UI Components**: shadcn/ui-inspired components
 - **State Management**: TanStack React Query for server state, React Context for client state
-- **Authentication**: Better Auth with JWT integration
+- **Authentication**: Custom JWT-based authentication with backend integration
 - **Forms**: Custom form components with validation
 
 ## Getting Started

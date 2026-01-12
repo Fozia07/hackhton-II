@@ -9,7 +9,7 @@ import { useRouter } from 'next/navigation'
 
 export function LoginForm() {
   const router = useRouter()
-  const [email, setEmail] = useState('')
+  const [username, setUsername] = useState('') // Can be username or email
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
@@ -21,7 +21,7 @@ export function LoginForm() {
 
     try {
       const result = await signIn.email({
-        email,
+        email: username, // Our client maps email to username for backend
         password,
       })
 
@@ -48,12 +48,12 @@ export function LoginForm() {
         </div>
       )}
 
-      <FormField label="Email" error="">
+      <FormField label="Username or Email" error="">
         <Input
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="your@email.com"
+          type="text"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          placeholder="username or email"
           required
         />
       </FormField>

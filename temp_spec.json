@@ -1,0 +1,6 @@
+{
+    "description": " Feature Specification: Fix Frontend–Backend Auth Integration Errors (Hackathon-II Phase-II)\n\n## Context\n\nProject is a Hackathon-II full-stack application.\n\n- Backend: FastAPI (JWT auth implemented, working independently)\n- Frontend: Next.js (login/signup working partially)\n- Auth: JWT-based authentication\n- Backend Path: phaseII/backend\n- Frontend Path: standard Next.js app\n- Database: Neon PostgreSQL\n- Time Constraint: Hackathon final stage (fast, minimal fixes only)\n\nCurrent Situation:\n- Backend is running and responding\n- Authentication logic exists\n- Frontend connects BUT errors occur during login/signup and routing\n\n---\n\n## Observed Errors (Critical)\n\n### Error 1: Login / Signup → \"Failed to fetch\"\n- Happens when submitting login or signup form\n- No proper response shown in frontend\n- Network request fails\n\n### Error 2: After Login → Dashboard shows 404\n- Login appears successful\n- JWT token may be received\n- Redirect to dashboard fails with 404 error",
+    "number": 1,
+    "shortName": "fix-auth-integration",
+    "title": "Fix Frontend–Backend Auth Integration Errors"
+}

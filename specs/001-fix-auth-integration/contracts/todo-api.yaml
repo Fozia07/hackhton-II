@@ -1,0 +1,165 @@
+# Todo API Contract
+openapi: 3.0.0
+info:
+  title: Todo API
+  version: 1.0.0
+  description: API for Todo operations
+paths:
+  /todos:
+    get:
+      summary: Get all todos for authenticated user
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: List of todos retrieved
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Todo'
+        '401':
+          description: Unauthorized - invalid or expired token
+    post:
+      summary: Create a new todo
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TodoCreate'
+      responses:
+        '201':
+          description: Todo created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Todo'
+        '400':
+          description: Invalid input
+        '401':
+          description: Unauthorized - invalid or expired token
+  /todos/{id}:
+    put:
+      summary: Update an existing todo
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TodoUpdate'
+      responses:
+        '200':
+          description: Todo updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Todo'
+        '400':
+          description: Invalid input
+        '401':
+          description: Unauthorized - invalid or expired token
+        '404':
+          description: Todo not found
+    delete:
+      summary: Delete a todo
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Todo deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Todo deleted successfully"
+        '401':
+          description: Unauthorized - invalid or expired token
+        '404':
+          description: Todo not found
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+  schemas:
+    Todo:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        title:
+          type: string
+          example: "Buy groceries"
+        description:
+          type: string
+          example: "Milk, eggs, bread"
+        completed:
+          type: boolean
+          example: false
+        user_id:
+          type: integer
+          example: 123
+        created_at:
+          type: string
+          format: date-time
+          example: "2023-01-01T00:00:00Z"
+        updated_at:
+          type: string
+          format: date-time
+          example: "2023-01-01T00:00:00Z"
+      required:
+        - id
+        - title
+        - completed
+        - user_id
+        - created_at
+        - updated_at
+    TodoCreate:
+      type: object
+      properties:
+        title:
+          type: string
+          example: "Buy groceries"
+        description:
+          type: string
+          example: "Milk, eggs, bread"
+        completed:
+          type: boolean
+          example: false
+      required:
+        - title
+      additionalProperties: false
+    TodoUpdate:
+      type: object
+      properties:
+        title:
+          type: string
+          example: "Buy groceries"
+        description:
+          type: string
+          example: "Milk, eggs, bread"
+        completed:
+          type: boolean
+          example: true
