@@ -8,12 +8,22 @@ from .routes.auth import router as auth_router
 from .routes.todos import router as todos_router
 
 
+import logging
+
+# Set up logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 app = FastAPI(title=settings.app_title, version=settings.app_version)
+
+# Parse allowed origins
+origins = settings.allowed_origins.split(",") if settings.allowed_origins != "*" else ["*"]
+logger.info(f"Configured CORS Allowed Origins: {origins}")
 
 # CORS middleware configuration
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.allowed_origins.split(",") if settings.allowed_origins != "*" else ["*"],
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
