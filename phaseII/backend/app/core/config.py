@@ -7,7 +7,7 @@ class Settings(BaseSettings):
     app_version: str = "0.1.0"
     debug: bool = False
     database_url: Optional[str] = None
-    allowed_origins: str = "*"  # Comma-separated list of origins
+    allowed_origins: str = "https://hackhton-ii.vercel.app,http://localhost:3000,http://localhost:3001,http://localhost:3002"  # Comma-separated list of origins
 
     # JWT Configuration
     jwt_secret_key: str = ""
