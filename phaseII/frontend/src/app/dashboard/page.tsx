@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { TodoList } from '@/components/todo/TodoList'
 import { TodoForm } from '@/components/todo/TodoForm'
 import { useTodo } from '@/contexts/TodoContext'
-import { Todo, TodoCreate, TodoUpdate } from '@/types/todo'
+import type { Todo, TodoCreate, TodoUpdate } from '@/types/todo'
 
 export default function DashboardPage() {
   const { state, createTodo, updateTodo, deleteTodo, setSelectedTodo } = useTodo()
