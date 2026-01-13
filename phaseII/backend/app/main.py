@@ -43,6 +43,10 @@ def on_startup():
     Initialize database tables when the application starts.
     This ensures that all required tables are created before the application begins serving requests.
     """
+    # Validate required configuration
+    if not settings.jwt_secret_key:
+        raise ValueError("JWT_SECRET_KEY environment variable must be set")
+
     create_db_and_tables()
 
 

@@ -4,6 +4,7 @@ sqlmodel==0.0.22
 python-dotenv==1.0.1
 psycopg2-binary==2.9.10
 pydantic-settings==2.6.0
+pydantic==2.10.0
 httpx==0.28.1
 passlib==1.0.1
 bcrypt==4.2.0

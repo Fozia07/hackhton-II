@@ -91,7 +91,9 @@
    - Check that your Neon database URL is properly formatted
 
 4. **Authentication Failures**:
-   - Make sure your `JWT_SECRET_KEY` is set and kept secure
+   - Make sure your `JWT_SECRET_KEY` is set and kept secure (REQUIRED!)
+   - The application will not start if `JWT_SECRET_KEY` is not set
+   - Use a strong, random secret key (at least 32 characters)
    - Verify that both frontend and backend use the same base URL format (with/without trailing slashes)
 
 5. **Health Check**:

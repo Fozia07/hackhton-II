@@ -1,7 +1,7 @@
 from sqlmodel import SQLModel, Field
 from typing import Optional
 from datetime import datetime
-from pydantic import validator
+from pydantic import field_validator
 
 
 class UserBase(SQLModel):
@@ -34,7 +34,7 @@ class UserCreate(UserBase):
     """Schema for creating a new user."""
     password: str  # Plain password, will be hashed before storing
 
-    @validator('password')
+    @field_validator('password')
     def validate_password(cls, v):
         if len(v) < 8:
             raise ValueError('Password must be at least 8 characters')
