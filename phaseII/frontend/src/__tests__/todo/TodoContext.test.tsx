@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, act, waitFor } from '@testing-library/react';
 import { TodoProvider, useTodo } from '@/contexts/TodoContext';
-import { Todo } from '@/types/todo';
+import type { Todo } from '@/types/todo';
 
 // Mock the todoService
 jest.mock('@/lib/todo/service', () => ({

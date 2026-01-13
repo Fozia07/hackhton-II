@@ -1,6 +1,6 @@
 import authService from './service';
 import { useState, useEffect } from 'react';
-import { User, Session, SignupData, SigninData } from '../../types/auth';
+import type { User, Session, SignupData, SigninData } from '../../types/auth';
 
 // Custom authentication methods using our JWT service
 export const signIn = {

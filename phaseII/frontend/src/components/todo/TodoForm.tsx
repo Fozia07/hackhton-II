@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { TodoCreate, TodoUpdate } from '../../types/todo';
+import type { TodoCreate, TodoUpdate } from '../../types/todo';
 
 interface TodoFormProps {
   onSubmit: (data: TodoCreate | TodoUpdate) => void;

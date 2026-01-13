@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Todo, TodoUpdate } from '../../types/todo';
+import type { Todo, TodoUpdate } from '../../types/todo';
 
 interface TodoItemProps {
   todo: Todo;

@@ -74,7 +74,7 @@ export default function DashboardPage() {
         </div>
       ) : (
         <TodoForm
-          onSubmit={handleCreateTodo}
+          onSubmit={(data) => handleCreateTodo(data as TodoCreate)}
           isSubmitting={state.isLoading}
         />
       )}

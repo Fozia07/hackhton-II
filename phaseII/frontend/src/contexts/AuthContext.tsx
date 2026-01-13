@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
 import authService from '../lib/auth/service';
-import { User } from '../types/auth';
+import type { User } from '../types/auth';
 
 interface AuthState {
   user: User | null;
@@ -19,7 +19,7 @@ interface AuthContextType {
   login: (username: string, password: string) => Promise<void>;
   signup: (username: string, email: string, password: string) => Promise<void>;
   logout: () => void;
-  getCurrentUser: () => Promise<void>;
+  getCurrentUser: () => Promise<User | null>;
 }
 
 const initialState: AuthState = {

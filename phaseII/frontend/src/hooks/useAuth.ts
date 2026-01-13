@@ -2,25 +2,26 @@ import { useSession } from '@/lib/auth/client'
 import { type User } from '@/types/auth'
 
 export function useAuth() {
-  const sessionQuery = useSession()
-  const session = sessionQuery.data
-  const isLoading = sessionQuery.isPending
+  const session = useSession()
+  const isLoading = session.isLoading
 
   // Transform Better Auth user to match our User type
-  const rawUser = session?.user || null
+  const rawUser = session.user
   const user: User | null = rawUser ? {
     id: rawUser.id,
     email: rawUser.email,
-    name: rawUser.name,
-    createdAt: rawUser.createdAt instanceof Date ? rawUser.createdAt.toISOString() : rawUser.createdAt
+    username: rawUser.username,
+    created_at: rawUser.created_at,
+    updated_at: rawUser.updated_at,
+    is_active: rawUser.is_active
   } : null
 
-  const isAuthenticated = !!session?.user
+  const isAuthenticated = session.isAuthenticated
 
   return {
     user,
     isAuthenticated,
     isLoading,
-    error: sessionQuery.error, // Better Auth handles errors internally
+    error: session.error,
   }
 }

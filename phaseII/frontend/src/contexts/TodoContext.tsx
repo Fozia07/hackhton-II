@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
-import { Todo, TodoCreate, TodoUpdate, TodoState } from '../types/todo';
+import type { Todo, TodoCreate, TodoUpdate, TodoState } from '../types/todo';
 import { todoService } from '../lib/todo/service';
 
 type TodoAction =

@@ -1,5 +1,5 @@
 // src/lib/auth/service.ts
-import { User as UserType, AuthResponse, SignupData, SigninData } from '../../types/auth';
+import type { User as UserType, AuthResponse, SignupData, SigninData } from '../../types/auth';
 
 interface ApiResponse<T> {
   data?: T;
