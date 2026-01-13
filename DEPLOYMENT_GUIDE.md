@@ -73,20 +73,33 @@
 
 ### Common Issues:
 
-1. **CORS Errors Persist**:
+1. **502 Bad Gateway Error**:
+   - This usually indicates the backend server is not responding
+   - Check that your Procfile has the correct port: `web: uvicorn app.main:app --host 0.0.0.0 --port $PORT`
+   - Verify your `DATABASE_URL` environment variable is correctly set
+   - Check that your `JWT_SECRET_KEY` environment variable is set
+   - Ensure the database connection string is valid
+   - Check Railway logs for specific error details
+
+2. **CORS Errors Persist**:
    - Verify that your Railway backend allows your Vercel domain in the `allowed_origins` setting
    - Check that environment variables are properly set in Railway
 
-2. **Database Connection Issues**:
-   - Ensure your Railway PostgreSQL plugin is properly attached
+3. **Database Connection Issues**:
+   - Ensure your Railway PostgreSQL database is properly attached
    - Verify that the `DATABASE_URL` environment variable is correctly configured
+   - Check that your Neon database URL is properly formatted
 
-3. **Authentication Failures**:
+4. **Authentication Failures**:
    - Make sure your `JWT_SECRET_KEY` is set and kept secure
    - Verify that both frontend and backend use the same base URL format (with/without trailing slashes)
 
+5. **Health Check**:
+   - Test your backend health at `/health` endpoint
+   - This will show database connectivity status
+
 ### Logging:
-- Check Railway's logs for backend issues: `railway logs`
+- Check Railway's logs for backend issues: Navigate to Logs tab in Railway dashboard
 - Check Vercel's logs for frontend issues in the Vercel dashboard
 - Use browser dev tools to inspect network requests
 

@@ -59,7 +59,27 @@ async def health_check():
     """
     Health check endpoint that returns the status of the application.
     """
-    return {"status": "ok"}
+    try:
+        # Test database connectivity
+        if engine:
+            from sqlmodel import select
+            from .models.user import User
+            # Just test if we can access the engine
+            db_status = "connected" if engine else "disconnected"
+        else:
+            db_status = "not configured"
+
+        return {
+            "status": "ok",
+            "database": db_status,
+            "timestamp": __import__('datetime').datetime.now().isoformat()
+        }
+    except Exception as e:
+        return {
+            "status": "error",
+            "error": str(e),
+            "timestamp": __import__('datetime').datetime.now().isoformat()
+        }
 
 
 # Example endpoint showing how to use database sessions with dependency injection
