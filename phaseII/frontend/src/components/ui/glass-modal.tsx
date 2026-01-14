@@ -1,4 +1,4 @@
-// Modal Component with Soft Backdrop and Gentle Animations
+// GlassModal Component with Subtle Glassmorphism
 'use client';
 
 import { cn } from '@/lib/utils';
@@ -6,7 +6,7 @@ import * as React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
 
-interface ModalProps {
+interface GlassModalProps {
   isOpen: boolean;
   onClose: () => void;
   title?: string;
@@ -15,14 +15,14 @@ interface ModalProps {
   showCloseButton?: boolean;
 }
 
-const Modal = ({
+const GlassModal = ({
   isOpen,
   onClose,
   title,
   children,
   className,
   showCloseButton = true
-}: ModalProps) => {
+}: GlassModalProps) => {
   const reducedMotion = useReducedMotion();
 
   // Prevent body scroll when modal is open
@@ -41,24 +41,30 @@ const Modal = ({
     <AnimatePresence>
       {isOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          {/* Backdrop with soft blur */}
+          {/* Backdrop with enhanced blur for glassmorphism effect */}
           <motion.div
             initial={reducedMotion ? {} : { opacity: 0 }}
             animate={reducedMotion ? {} : { opacity: 1 }}
             exit={reducedMotion ? {} : { opacity: 0 }}
             transition={{ duration: 0.3 }}
-            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            className="absolute inset-0 bg-black/30 backdrop-blur-md"
             onClick={onClose}
           />
 
-          {/* Modal Content */}
+          {/* Glass Modal Content */}
           <motion.div
             initial={reducedMotion ? {} : { opacity: 0, scale: 0.95 }}
             animate={reducedMotion ? {} : { opacity: 1, scale: 1 }}
             exit={reducedMotion ? {} : { opacity: 0, scale: 0.95 }}
             transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
             className={cn(
-              'relative bg-card rounded-xl shadow-[var(--shadow-xl)] max-w-md w-full p-6 border border-border',
+              'relative max-w-md w-full p-6 rounded-xl shadow-[var(--shadow-xl)]',
+              // Glassmorphism effect
+              'backdrop-blur-xl backdrop-saturate-180',
+              'bg-[var(--glass-modal-bg)] border border-[var(--glass-modal-border)]',
+              // Fallback for browsers that don't support backdrop-filter
+              'supports-[backdrop-filter]:bg-[var(--glass-modal-bg)]',
+              'supports-[not(backdrop-filter)]:bg-[var(--glass-fallback)]',
               className
             )}
             onClick={(e) => e.stopPropagation()}
@@ -77,7 +83,7 @@ const Modal = ({
                 )}
               </div>
             )}
-            {children}
+            <div className="text-foreground">{children}</div>
           </motion.div>
         </div>
       )}
@@ -85,4 +91,4 @@ const Modal = ({
   );
 };
 
-export { Modal };
+export { GlassModal };

@@ -1,0 +1,121 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Animation Presets",
+  "description": "Light, gentle animation configurations for Modern UI Enhancement",
+  "version": "1.0.0",
+  "transitions": {
+    "quick": {
+      "type": "tween",
+      "duration": 150,
+      "easing": [0.76, 0, 0.24, 1],
+      "description": "Fast micro-interactions (button clicks, toggles)"
+    },
+    "gentle": {
+      "type": "tween",
+      "duration": 250,
+      "easing": [0.65, 0, 0.35, 1],
+      "description": "Default for most transitions (hover effects, small UI changes)"
+    },
+    "smooth": {
+      "type": "tween",
+      "duration": 300,
+      "easing": [0.16, 1, 0.3, 1],
+      "description": "Refined, organic feel (page transitions, modal opens)"
+    },
+    "slow": {
+      "type": "tween",
+      "duration": 400,
+      "easing": [0.4, 0, 0.2, 1],
+      "description": "Large movements (full-screen modals, page overlays)"
+    },
+    "springGentle": {
+      "type": "spring",
+      "stiffness": 200,
+      "damping": 25,
+      "mass": 1,
+      "description": "Natural spring motion (interactive elements)"
+    }
+  },
+  "variants": {
+    "fadeIn": {
+      "initial": { "opacity": 0 },
+      "animate": { "opacity": 1 },
+      "exit": { "opacity": 0 },
+      "transition": "gentle"
+    },
+    "fadeInUp": {
+      "initial": { "opacity": 0, "y": 20 },
+      "animate": { "opacity": 1, "y": 0 },
+      "exit": { "opacity": 0, "y": -20 },
+      "transition": "gentle"
+    },
+    "scaleIn": {
+      "initial": { "opacity": 0, "scale": 0.95 },
+      "animate": { "opacity": 1, "scale": 1 },
+      "exit": { "opacity": 0, "scale": 0.95 },
+      "transition": "smooth"
+    },
+    "slideIn": {
+      "initial": { "x": -20, "opacity": 0 },
+      "animate": { "x": 0, "opacity": 1 },
+      "exit": { "x": 20, "opacity": 0 },
+      "transition": "gentle"
+    }
+  },
+  "microInteractions": {
+    "buttonHover": {
+      "scale": 1.02,
+      "duration": 200,
+      "easing": "easeOut",
+      "description": "Subtle button lift on hover"
+    },
+    "buttonPress": {
+      "scale": 0.98,
+      "duration": 100,
+      "easing": "easeOut",
+      "description": "Button press feedback"
+    },
+    "cardHover": {
+      "y": -2,
+      "scale": 1.01,
+      "duration": 250,
+      "easing": "easeOut",
+      "description": "Card elevation on hover"
+    },
+    "modalEnter": {
+      "opacity": [0, 1],
+      "scale": [0.95, 1],
+      "duration": 300,
+      "easing": "easeOut",
+      "description": "Modal entrance animation"
+    },
+    "toastSlide": {
+      "x": [100, 0],
+      "opacity": [0, 1],
+      "duration": 300,
+      "easing": "easeOut",
+      "description": "Toast notification slide-in"
+    },
+    "checkboxCheck": {
+      "pathLength": [0, 1],
+      "duration": 200,
+      "easing": [0.65, 0, 0.35, 1],
+      "description": "Checkbox check animation"
+    }
+  },
+  "easingFunctions": {
+    "easeInOutCubic": "cubic-bezier(0.65, 0, 0.35, 1)",
+    "easeInOutQuart": "cubic-bezier(0.76, 0, 0.24, 1)",
+    "easeOutExpo": "cubic-bezier(0.16, 1, 0.3, 1)",
+    "easeOutCubic": "cubic-bezier(0.33, 1, 0.68, 1)",
+    "easeInCubic": "cubic-bezier(0.32, 0, 0.67, 0)",
+    "materialStandard": "cubic-bezier(0.4, 0, 0.2, 1)",
+    "materialDeceleration": "cubic-bezier(0, 0, 0.2, 1)",
+    "materialAcceleration": "cubic-bezier(0.4, 0, 1, 1)"
+  },
+  "reducedMotion": {
+    "enabled": true,
+    "fallbackDuration": 1,
+    "description": "Respects prefers-reduced-motion media query"
+  }
+}
