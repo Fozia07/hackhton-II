@@ -14,51 +14,83 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 /**
- * ThemeProvider with soft dark mode colors
- * Provides smooth transitions between light and dark themes
+ * ThemeProvider with SaaS-style theme colors
+ * Provides smooth transitions between light and dark themes with specified color scheme
  */
-export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setTheme] = useState<Theme>('light');
+export function ThemeProvider({
+  children,
+  defaultTheme = 'light',
+  storageKey = 'theme'
+}: {
+  children: ReactNode;
+  defaultTheme?: Theme;
+  storageKey?: string;
+}) {
+  const [theme, setThemeState] = useState<Theme>('light'); // Default to 'light' initially
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
+    // Only run on client side
+    if (typeof window !== 'undefined') {
+      // Get theme from localStorage or use default
+      const storedTheme = localStorage.getItem(storageKey) as Theme | null;
+      const initialTheme = storedTheme || defaultTheme;
+      setThemeState(initialTheme);
 
-    // Check for saved theme in localStorage
-    const savedTheme = localStorage.getItem('theme') as Theme | null;
-    if (savedTheme) {
-      setTheme(savedTheme);
-    } else {
-      // Check for system preference
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      setTheme(prefersDark ? 'dark' : 'light');
+      // Apply the theme class immediately to avoid FOUC
+      const root = window.document.documentElement;
+      root.classList.remove('light', 'dark');
+      root.classList.add(initialTheme);
     }
-  }, []);
+    setMounted(true);
+  }, [storageKey, defaultTheme]);
 
   useEffect(() => {
-    if (!mounted) return;
+    if (!mounted || typeof window === 'undefined') return;
 
-    // Apply theme to document with smooth transition
-    const root = document.documentElement;
+    const root = window.document.documentElement;
 
-    // Add transition class for smooth theme switching
-    root.style.setProperty('transition', 'background-color 0.3s ease, color 0.3s ease');
-
-    // Remove both classes first
+    // Remove old theme classes
     root.classList.remove('light', 'dark');
 
-    // Add the current theme class
+    // Add new theme class
     root.classList.add(theme);
 
-    // Save to localStorage
-    localStorage.setItem('theme', theme);
+    // Set CSS custom properties based on theme with specified SaaS colors
+    if (theme === 'light') {
+      root.style.setProperty('--background', '#CFE8FA');
+      root.style.setProperty('--card', '#FFFFFF');
+      root.style.setProperty('--primary', '#2563EB');
+      root.style.setProperty('--primary-foreground', '#CFE8FA');
+      root.style.setProperty('--text-primary', '#0F172A');
+      root.style.setProperty('--text-muted', '#64748B');
+      root.style.setProperty('--border', '#E2E8F0');
+      root.style.setProperty('--success', '#22C55E');
+      root.style.setProperty('--warning', '#F59E0B');
+    } else {
+      root.style.setProperty('--background', '#0F172A');
+      root.style.setProperty('--card', '#0F172A');
+      root.style.setProperty('--primary', '#3B82F6');
+      root.style.setProperty('--primary-foreground', '#0F172A');
+      root.style.setProperty('--text-primary', '#E5E7EB');
+      root.style.setProperty('--text-muted', '#94A3B8');
+      root.style.setProperty('--border', '#1E293B');
+      root.style.setProperty('--success', '#22C55E');
+      root.style.setProperty('--warning', '#F59E0B');
+    }
 
-    // Update meta theme-color for mobile browsers with soft colors
+    // Add smooth transition for theme switching
+    root.style.setProperty('transition', 'background-color 0.3s ease, color 0.3s ease');
+
+    // Save to localStorage
+    localStorage.setItem(storageKey, theme);
+
+    // Update meta theme-color for mobile browsers
     const metaThemeColor = document.querySelector('meta[name="theme-color"]');
     if (metaThemeColor) {
       metaThemeColor.setAttribute(
         'content',
-        theme === 'dark' ? 'hsl(210, 18%, 12%)' : 'hsl(0, 0%, 100%)'
+        theme === 'dark' ? '#0F172A' : '#CFE8FA'
       );
     }
 
@@ -70,12 +102,21 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     return () => clearTimeout(timeoutId);
   }, [theme, mounted]);
 
-  const toggleTheme = () => {
-    setTheme(prev => prev === 'light' ? 'dark' : 'light');
+  const setTheme = (theme: Theme) => {
+    if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
+      setThemeState(theme);
+      localStorage.setItem(storageKey, theme);
+    }
   };
 
-  const handleSetTheme = (newTheme: Theme) => {
-    setTheme(newTheme);
+  const toggleTheme = () => {
+    if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
+      setThemeState(prev => {
+        const newTheme = prev === 'light' ? 'dark' : 'light';
+        localStorage.setItem(storageKey, newTheme);
+        return newTheme;
+      });
+    }
   };
 
   // Prevent flash of unstyled content
@@ -84,7 +125,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme, setTheme: handleSetTheme }}>
+    <ThemeContext.Provider value={{ theme, toggleTheme, setTheme }}>
       {children}
     </ThemeContext.Provider>
   );

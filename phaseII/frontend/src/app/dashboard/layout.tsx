@@ -30,7 +30,7 @@ export default function DashboardLayout({
         initial={reducedMotion ? {} : { opacity: 0 }}
         animate={reducedMotion ? {} : { opacity: 1 }}
         transition={reducedMotion ? {} : { duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-        className="min-h-screen bg-gradient-to-br from-background via-primary-50/20 to-secondary-50/10 dark:from-background dark:via-primary-900/5 dark:to-secondary-900/5"
+        className="min-h-screen bg-gradient-to-br from-background to-primary-100/30 dark:from-background dark:to-primary-900/10"
       >
         <Header />
         <main className="container mx-auto py-8 px-4">

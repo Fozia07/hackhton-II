@@ -1,28 +1,30 @@
 from typing import Optional
 from datetime import datetime, timedelta
 from jose import JWTError, jwt
-from passlib.context import CryptContext
+import bcrypt
 from fastapi import HTTPException, status
 from .config import settings
 from datetime import timezone
 
 
-# Password hashing context with bcrypt and 12 rounds as required
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto", bcrypt__rounds=12)
-
-
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     """
-    Verify a plain password against a hashed password.
+    Verify a plain password against a hashed password using bcrypt.
     """
-    return pwd_context.verify(plain_password, hashed_password)
+    password_bytes = plain_password.encode('utf-8')
+    hashed_bytes = hashed_password.encode('utf-8')
+    return bcrypt.checkpw(password_bytes, hashed_bytes)
 
 
 def get_password_hash(password: str) -> str:
     """
-    Hash a password using bcrypt with 12 rounds.
+    Hash a password using bcrypt.
     """
-    return pwd_context.hash(password)
+    password_bytes = password.encode('utf-8')
+    # Generate a salt and hash the password
+    salt = bcrypt.gensalt(rounds=12)
+    hashed_password = bcrypt.hashpw(password_bytes, salt)
+    return hashed_password.decode('utf-8')
 
 
 def authenticate_user(username: str, password: str) -> Optional[dict]:

@@ -11,90 +11,48 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Soft, muted color palette for professional appearance
-        primary: {
-          50: 'hsl(220, 28%, 95%)',
-          100: 'hsl(220, 28%, 88%)',
-          200: 'hsl(220, 28%, 78%)',
-          300: 'hsl(220, 28%, 68%)',
-          400: 'hsl(220, 30%, 58%)',
-          500: 'hsl(220, 30%, 52%)',  // Base - soft blue
-          600: 'hsl(220, 32%, 42%)',  // Hover - slightly darker
-          700: 'hsl(220, 34%, 32%)',  // Active
-          800: 'hsl(220, 36%, 25%)',
-          900: 'hsl(220, 38%, 18%)',
+        // SaaS-style theme colors as specified
+        // Light Mode Colors
+        background: '#F8FAFC',      // Soft neutral background
+        card: '#FFFFFF',            // White cards
+        primary: '#2563EB',         // Slate blue primary accent
+        'primary-foreground': '#F8FAFC',
+        'primary-light': '#dbeafe', // Lighter shade for hover states
+        'primary-dark': '#1d4ed8',  // Darker shade for active states
+        'text-primary': '#0F172A',  // Dark slate text
+        'text-muted': '#64748B',    // Gray muted text
+        border: '#E2E8F0',          // Subtle gray borders
+        success: '#22C55E',         // Green for completed tasks
+        warning: '#F59E0B',         // Amber for update actions
+        // Dark Mode Colors
+        'dark-background': '#020617',     // Charcoal background
+        'dark-card': '#0F172A',           // Deep slate cards
+        'dark-primary': '#3B82F6',        // Electric blue primary
+        'dark-text-primary': '#E5E7EB',   // Light gray text
+        'dark-text-muted': '#94A3B8',     // Muted text in dark mode
+        'dark-border': '#1E293B',         // Dark borders
+        // Semantic colors for dynamic theming
+        'light-mode': {
+          background: '#F8FAFC',
+          card: '#FFFFFF',
+          primary: '#2563EB',
+          'primary-foreground': '#F8FAFC',
+          'text-primary': '#0F172A',
+          'text-muted': '#64748B',
+          border: '#E2E8F0',
+          success: '#22C55E',
+          warning: '#F59E0B',
         },
-        secondary: {
-          50: 'hsl(200, 25%, 95%)',
-          100: 'hsl(200, 25%, 88%)',
-          200: 'hsl(200, 25%, 78%)',
-          300: 'hsl(200, 25%, 68%)',
-          400: 'hsl(200, 28%, 58%)',
-          500: 'hsl(200, 28%, 52%)',  // Soft cyan
-          600: 'hsl(200, 30%, 42%)',
-          700: 'hsl(200, 32%, 32%)',
-          800: 'hsl(200, 34%, 25%)',
-          900: 'hsl(200, 36%, 18%)',
-        },
-        success: {
-          50: 'hsl(145, 30%, 95%)',
-          100: 'hsl(145, 30%, 88%)',
-          200: 'hsl(145, 30%, 78%)',
-          300: 'hsl(145, 30%, 68%)',
-          400: 'hsl(145, 32%, 58%)',
-          500: 'hsl(145, 32%, 48%)',  // Soft green
-          600: 'hsl(145, 35%, 38%)',
-          700: 'hsl(145, 38%, 30%)',
-          800: 'hsl(145, 40%, 24%)',
-          900: 'hsl(145, 42%, 18%)',
-        },
-        error: {
-          50: 'hsl(0, 30%, 95%)',
-          100: 'hsl(0, 30%, 88%)',
-          200: 'hsl(0, 30%, 78%)',
-          300: 'hsl(0, 30%, 68%)',
-          400: 'hsl(0, 32%, 58%)',
-          500: 'hsl(0, 32%, 52%)',  // Soft red
-          600: 'hsl(0, 35%, 45%)',
-          700: 'hsl(0, 38%, 38%)',
-          800: 'hsl(0, 40%, 30%)',
-          900: 'hsl(0, 42%, 22%)',
-        },
-        warning: {
-          50: 'hsl(35, 30%, 95%)',
-          100: 'hsl(35, 30%, 88%)',
-          200: 'hsl(35, 30%, 78%)',
-          300: 'hsl(35, 30%, 68%)',
-          400: 'hsl(35, 32%, 58%)',
-          500: 'hsl(35, 32%, 52%)',  // Soft orange
-          600: 'hsl(35, 35%, 45%)',
-          700: 'hsl(35, 38%, 38%)',
-          800: 'hsl(35, 40%, 30%)',
-          900: 'hsl(35, 42%, 22%)',
-        },
-        info: {
-          50: 'hsl(210, 28%, 95%)',
-          100: 'hsl(210, 28%, 88%)',
-          200: 'hsl(210, 28%, 78%)',
-          300: 'hsl(210, 28%, 68%)',
-          400: 'hsl(210, 30%, 58%)',
-          500: 'hsl(210, 30%, 52%)',  // Soft blue-gray
-          600: 'hsl(210, 32%, 42%)',
-          700: 'hsl(210, 34%, 32%)',
-          800: 'hsl(210, 36%, 25%)',
-          900: 'hsl(210, 38%, 18%)',
-        },
-        neutral: {
-          50: 'hsl(210, 10%, 98%)',
-          100: 'hsl(210, 10%, 95%)',
-          200: 'hsl(210, 10%, 88%)',
-          300: 'hsl(210, 10%, 78%)',
-          400: 'hsl(210, 10%, 65%)',
-          500: 'hsl(210, 10%, 55%)',  // Soft slate
-          600: 'hsl(210, 12%, 42%)',
-          700: 'hsl(210, 14%, 32%)',
-          800: 'hsl(210, 16%, 22%)',
-          900: 'hsl(210, 18%, 15%)',
+        'dark-mode': {
+          background: '#020617',
+          card: '#0F172A',
+          primary: '#3B82F6',
+          'primary-foreground': '#020617',
+          'text-primary': '#E5E7EB',
+          'text-muted': '#94A3B8',
+          border: '#1E293B',
+          success: '#22C55E',
+          warning: '#F59E0B',
         },
         // Define semantic colors as simple values
         border: 'hsl(var(--border))',
@@ -102,6 +60,30 @@ export default {
         ring: 'hsl(var(--ring))',
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
+        primary: {
+          DEFAULT: 'hsl(var(--primary))',
+          foreground: 'hsl(var(--primary-foreground))',
+        },
+        card: {
+          DEFAULT: 'hsl(var(--card))',
+          foreground: 'hsl(var(--card-foreground))',
+        },
+        muted: {
+          DEFAULT: 'hsl(var(--muted))',
+          foreground: 'hsl(var(--muted-foreground))',
+        },
+        destructive: {
+          DEFAULT: 'hsl(var(--destructive))',
+          foreground: 'hsl(var(--destructive-foreground))',
+        },
+        success: {
+          DEFAULT: 'hsl(var(--success))',
+          foreground: 'hsl(var(--success-foreground))',
+        },
+        warning: {
+          DEFAULT: 'hsl(var(--warning))',
+          foreground: 'hsl(var(--warning-foreground))',
+        },
       },
       fontFamily: {
         sans: ['Inter', 'ui-sans-serif', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'Noto Sans', 'sans-serif'],

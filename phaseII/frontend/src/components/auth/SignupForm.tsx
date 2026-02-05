@@ -133,6 +133,7 @@ export function SignupForm() {
           required
           minLength={8}
           error={!!errors.password}
+          autoComplete="new-password"
         />
       </FormField>
 
@@ -147,6 +148,7 @@ export function SignupForm() {
           placeholder="••••••••"
           required
           error={!!errors.confirmPassword}
+          autoComplete="new-password"
         />
       </FormField>
 

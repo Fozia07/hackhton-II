@@ -5,10 +5,23 @@ import { cn } from '@/lib/utils';
 import * as React from 'react';
 
 export interface CheckboxProps
-  extends React.InputHTMLAttributes<HTMLInputElement> {}
+  extends React.InputHTMLAttributes<HTMLInputElement> {
+  onCheckedChange?: (checked: boolean) => void;
+}
 
 const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
-  ({ className, ...props }, ref) => {
+  ({ className, onCheckedChange, ...props }, ref) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      // Call the original onChange if provided
+      if (props.onChange) {
+        props.onChange(e);
+      }
+      // Call onCheckedChange with the checked value
+      if (onCheckedChange) {
+        onCheckedChange(e.target.checked);
+      }
+    };
+
     return (
       <input
         type="checkbox"
@@ -22,6 +35,7 @@ const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
           className
         )}
         ref={ref}
+        onChange={handleChange}
         {...props}
       />
     );

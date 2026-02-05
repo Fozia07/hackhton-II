@@ -27,7 +27,7 @@ export default function HomePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-primary-50/30 to-secondary-50/20 dark:from-background dark:via-primary-900/10 dark:to-secondary-900/10">
+    <div className="min-h-screen bg-gradient-to-br from-background to-primary-100/30 dark:from-background dark:to-primary-900/10">
       <div className="container mx-auto px-4 py-16 scroll-smooth">
         {/* Hero Section with Soft Gradient */}
         <motion.section

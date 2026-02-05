@@ -18,6 +18,7 @@ const buttonVariants = cva(
         secondary: 'bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 border border-neutral-200 dark:border-neutral-700 shadow-[var(--shadow-sm)] hover:bg-neutral-200 dark:hover:bg-neutral-700 hover:border-neutral-300 dark:hover:border-neutral-600 hover:shadow-[var(--shadow-md)] active:bg-neutral-300 dark:active:bg-neutral-600',
         ghost: 'bg-transparent text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:shadow-[var(--shadow-sm)] active:bg-neutral-200 dark:active:bg-neutral-700',
         link: 'text-primary-600 dark:text-primary-500 underline-offset-4 hover:underline hover:text-primary-700 dark:hover:text-primary-400',
+        success: 'bg-success-600 text-white shadow-[var(--shadow-sm)] hover:bg-success-700 hover:shadow-[var(--shadow-md)] active:bg-success-800 active:shadow-[var(--shadow-sm)]',
       },
       size: {
         default: 'h-10 px-4 py-2',

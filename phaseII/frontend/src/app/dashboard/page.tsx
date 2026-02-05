@@ -1,17 +1,19 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
 import { useTodo } from '@/contexts/TodoContext';
-import { TodoList } from '@/components/todo/TodoList';
-import { TodoForm } from '@/components/todo/TodoForm';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
+import { TabNavigation } from '@/components/dashboard/TabNavigation';
+import { TaskList } from '@/components/dashboard/TaskList';
+import { TodoForm } from '@/components/todo/TodoForm';
 
 export default function DashboardPage() {
   const [mounted, setMounted] = useState(false);
+  const [activeTab, setActiveTab] = useState('today');
   const { state, createTodo, updateTodo, deleteTodo, setSelectedTodo } = useTodo();
+  const [showAddForm, setShowAddForm] = useState(false);
   const reducedMotion = useReducedMotion();
 
   useEffect(() => {
@@ -24,6 +26,7 @@ export default function DashboardPage() {
 
   const handleCreateTodo = async (data: any) => {
     await createTodo(data);
+    setShowAddForm(false);
   };
 
   const handleDeleteTodo = async (id: number) => {
@@ -32,183 +35,136 @@ export default function DashboardPage() {
 
   const handleEditTodo = (todo: any) => {
     setSelectedTodo(todo);
+    setShowAddForm(true);
   };
 
   const handleUpdateTodo = async (id: number, data: any) => {
     await updateTodo(id, data);
+    setShowAddForm(false);
   };
 
   const handleCancelEdit = () => {
     setSelectedTodo(null);
+    setShowAddForm(false);
   };
-
-  const filteredTodos = state.selectedTodo ? [state.selectedTodo] : state.todos;
 
   return (
     <div className="max-w-6xl mx-auto space-y-8">
-      {/* Welcome Section */}
+      {/* Header Section */}
       <motion.section
         initial={reducedMotion ? {} : { opacity: 0, y: 20 }}
         animate={reducedMotion ? {} : { opacity: 1, y: 0 }}
         transition={reducedMotion ? {} : { duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-        className="text-center mb-12"
+        className="bg-gradient-to-r from-primary-500 to-secondary-500 dark:from-primary-600 dark:to-secondary-600 rounded-xl p-6 text-white"
       >
-        <h1 className="text-4xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary-600 via-primary-500 to-secondary-600 dark:from-primary-400 dark:via-primary-300 dark:to-secondary-400 mb-4">
-          Welcome Back!
-        </h1>
-        <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-          Manage your tasks efficiently and boost your productivity with our beautiful and intuitive interface.
+        <h1 className="text-4xl md:text-5xl font-bold mb-2">Todo App</h1>
+        <p className="text-primary-100 dark:text-primary-200">
+          Manage your tasks efficiently and boost your productivity
         </p>
       </motion.section>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <motion.div
-            initial={reducedMotion ? {} : { opacity: 0, y: 20 }}
-            animate={reducedMotion ? {} : { opacity: 1, y: 0 }}
-            transition={reducedMotion ? {} : { delay: 0.1, duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-          >
-            <Card className="bg-card border border-border shadow-[var(--shadow-sm)] hover:shadow-[var(--shadow-md)] transition-all duration-250">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-xl font-semibold text-foreground">Total Tasks</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-4xl font-bold text-primary-600 dark:text-primary-400">{state.todos.length}</div>
-                <p className="text-sm text-muted-foreground mt-1">All tasks in your list</p>
-              </CardContent>
-            </Card>
-          </motion.div>
-
-          <motion.div
-            initial={reducedMotion ? {} : { opacity: 0, y: 20 }}
-            animate={reducedMotion ? {} : { opacity: 1, y: 0 }}
-            transition={reducedMotion ? {} : { delay: 0.15, duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-          >
-            <Card className="bg-card border border-border shadow-[var(--shadow-sm)] hover:shadow-[var(--shadow-md)] transition-all duration-250">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-xl font-semibold text-foreground">Active</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-4xl font-bold text-secondary-600 dark:text-secondary-400">
-                  {state.todos.filter(t => !t.completed).length}
-                </div>
-                <p className="text-sm text-muted-foreground mt-1">Tasks to complete</p>
-              </CardContent>
-            </Card>
-          </motion.div>
-
-          <motion.div
-            initial={reducedMotion ? {} : { opacity: 0, y: 20 }}
-            animate={reducedMotion ? {} : { opacity: 1, y: 0 }}
-            transition={reducedMotion ? {} : { delay: 0.2, duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-          >
-            <Card className="bg-card border border-border shadow-[var(--shadow-sm)] hover:shadow-[var(--shadow-md)] transition-all duration-250">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-xl font-semibold text-foreground">Completed</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-4xl font-bold text-success-600 dark:text-success-400">
-                  {state.todos.filter(t => t.completed).length}
-                </div>
-                <p className="text-sm text-muted-foreground mt-1">Tasks finished</p>
-              </CardContent>
-            </Card>
-          </motion.div>
-        </div>
-
-        {/* Todo Form */}
-        <motion.section
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <motion.div
           initial={reducedMotion ? {} : { opacity: 0, y: 20 }}
           animate={reducedMotion ? {} : { opacity: 1, y: 0 }}
-          transition={reducedMotion ? {} : { delay: 0.25, duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+          transition={reducedMotion ? {} : { delay: 0.1, duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
         >
-          <Card className="bg-card border border-border shadow-[var(--shadow-md)]">
-            <CardHeader>
-              <CardTitle className="text-xl font-semibold text-foreground">
-                {state.selectedTodo ? 'Edit Todo' : 'Create New Todo'}
-              </CardTitle>
-              <CardDescription className="text-muted-foreground">
-                {state.selectedTodo
-                  ? 'Update your existing task'
-                  : 'Add a new task to your list'}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {state.selectedTodo ? (
-                <TodoForm
-                  initialValues={state.selectedTodo}
-                  onSubmit={(data) => handleUpdateTodo(state.selectedTodo!.id, data)}
-                  onCancel={handleCancelEdit}
-                  isSubmitting={state.isLoading}
-                />
-              ) : (
-                <TodoForm
-                  onSubmit={handleCreateTodo}
-                  isSubmitting={state.isLoading}
-                />
-              )}
-            </CardContent>
-          </Card>
-        </motion.section>
+          <div className="bg-card border border-border rounded-lg p-4 shadow-[var(--shadow-sm)]">
+            <h3 className="text-lg font-semibold text-foreground">Total Tasks</h3>
+            <div className="text-3xl font-bold text-primary-600 dark:text-primary-400 mt-1">{state.todos.length}</div>
+            <p className="text-sm text-muted-foreground mt-1">All tasks in your list</p>
+          </div>
+        </motion.div>
 
-        {/* Todo List */}
-        <motion.section
+        <motion.div
           initial={reducedMotion ? {} : { opacity: 0, y: 20 }}
           animate={reducedMotion ? {} : { opacity: 1, y: 0 }}
-          transition={reducedMotion ? {} : { delay: 0.3, duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+          transition={reducedMotion ? {} : { delay: 0.15, duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
         >
-          <Card className="bg-card border border-border shadow-[var(--shadow-md)]">
-            <CardHeader>
-              <CardTitle className="text-xl font-semibold text-foreground">Your Tasks</CardTitle>
-              <CardDescription className="text-muted-foreground">
-                {state.todos.length} {state.todos.length === 1 ? 'task' : 'tasks'} in your list
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {state.isLoading ? (
-                <div className="flex justify-center items-center h-32">
-                  <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary-600"></div>
-                </div>
-              ) : state.error ? (
-                <div className="text-center py-8">
-                  <p className="text-error-600 dark:text-error-500">Error: {state.error}</p>
-                  <Button
-                    onClick={() => window.location.reload()}
-                    className="mt-4"
-                  >
-                    Refresh
-                  </Button>
-                </div>
-              ) : filteredTodos.length === 0 ? (
-                <div className="text-center py-12">
-                  <div className="mx-auto h-24 w-24 rounded-full bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center mb-4 shadow-[var(--shadow-sm)]">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-primary-600 dark:text-primary-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                    </svg>
-                  </div>
-                  <h3 className="text-lg font-semibold mb-1 text-foreground">No tasks yet</h3>
-                  <p className="text-muted-foreground mb-4">
-                    {state.selectedTodo
-                      ? 'Selected task not found'
-                      : 'Get started by creating your first task'}
-                  </p>
-                  {!state.selectedTodo && (
-                    <Button onClick={() => setSelectedTodo(null)}>
-                      Create Your First Task
-                    </Button>
-                  )}
-                </div>
-              ) : (
-                <TodoList
-                  todos={filteredTodos}
-                  onEdit={handleEditTodo}
-                  onDelete={handleDeleteTodo}
-                  onUpdate={handleUpdateTodo}
-                />
-              )}
-            </CardContent>
-          </Card>
-        </motion.section>
+          <div className="bg-card border border-border rounded-lg p-4 shadow-[var(--shadow-sm)]">
+            <h3 className="text-lg font-semibold text-foreground">Active</h3>
+            <div className="text-3xl font-bold text-secondary-600 dark:text-secondary-400 mt-1">
+              {state.todos.filter(t => !t.completed).length}
+            </div>
+            <p className="text-sm text-muted-foreground mt-1">Tasks to complete</p>
+          </div>
+        </motion.div>
+
+        <motion.div
+          initial={reducedMotion ? {} : { opacity: 0, y: 20 }}
+          animate={reducedMotion ? {} : { opacity: 1, y: 0 }}
+          transition={reducedMotion ? {} : { delay: 0.2, duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+        >
+          <div className="bg-card border border-border rounded-lg p-4 shadow-[var(--shadow-sm)]">
+            <h3 className="text-lg font-semibold text-foreground">Completed</h3>
+            <div className="text-3xl font-bold text-success-600 dark:text-success-400 mt-1">
+              {state.todos.filter(t => t.completed).length}
+            </div>
+            <p className="text-sm text-muted-foreground mt-1">Tasks finished</p>
+          </div>
+        </motion.div>
       </div>
+
+      {/* Add Task Form */}
+      {showAddForm && (
+        <motion.section
+          initial={reducedMotion ? {} : { opacity: 0, y: 20 }}
+          animate={reducedMotion ? {} : { opacity: 1, y: 0 }}
+          transition={reducedMotion ? {} : { duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+        >
+          <div className="bg-card border border-border rounded-lg p-6 shadow-[var(--shadow-md)]">
+            <h2 className="text-xl font-semibold text-foreground mb-4">
+              {state.selectedTodo ? 'Edit Task' : 'Add New Task'}
+            </h2>
+            <TodoForm
+              initialValues={state.selectedTodo || undefined}
+              onSubmit={state.selectedTodo ? (data) => handleUpdateTodo(state.selectedTodo!.id, data) : handleCreateTodo}
+              onCancel={handleCancelEdit}
+              isSubmitting={state.isLoading}
+            />
+          </div>
+        </motion.section>
+      )}
+
+      {/* Task Section with Tabs */}
+      <motion.section
+        initial={reducedMotion ? {} : { opacity: 0, y: 20 }}
+        animate={reducedMotion ? {} : { opacity: 1, y: 0 }}
+        transition={reducedMotion ? {} : { delay: 0.25, duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+      >
+        <div className="bg-card border border-border rounded-lg p-6 shadow-[var(--shadow-md)]">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-xl font-semibold text-foreground">Tasks</h2>
+            <Button
+              variant="success"
+              onClick={() => {
+                setSelectedTodo(null);
+                setShowAddForm(true);
+              }}
+            >
+              + Add Task
+            </Button>
+          </div>
+
+          <TabNavigation activeTab={activeTab} onTabChange={setActiveTab} />
+
+          <div className="mt-6">
+            <TaskList
+              tasks={state.todos}
+              activeTab={activeTab}
+              onToggleComplete={async (id: number) => {
+                const task = state.todos.find(t => t.id === id);
+                if (task) {
+                  await updateTodo(id, { completed: !task.completed });
+                }
+              }}
+              onEdit={handleEditTodo}
+              onDelete={handleDeleteTodo}
+            />
+          </div>
+        </div>
+      </motion.section>
+    </div>
   );
 }

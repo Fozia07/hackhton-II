@@ -10,7 +10,7 @@ export default function LoginPage() {
   const reducedMotion = useReducedMotion();
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-primary-50/20 to-secondary-50/10 dark:from-background dark:via-primary-900/5 dark:to-secondary-900/5 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-primary-100/30 dark:from-background dark:to-primary-900/10 py-12 px-4 sm:px-6 lg:px-8">
       <motion.div
         initial={reducedMotion ? {} : { opacity: 0, y: 20 }}
         animate={reducedMotion ? {} : { opacity: 1, y: 0 }}

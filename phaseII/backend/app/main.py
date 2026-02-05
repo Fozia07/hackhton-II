@@ -1,6 +1,7 @@
+from contextlib import asynccontextmanager
 from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
-from sqlmodel import Session
+from sqlmodel.ext.asyncio.session import AsyncSession
 import os
 from .core.config import settings
 from .core.database import create_db_and_tables, get_session, engine
@@ -14,7 +15,15 @@ import logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-app = FastAPI(title=settings.app_title, version=settings.app_version)
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Initialize the database and create tables
+    await create_db_and_tables()
+    logger.info("Database tables created successfully")
+    yield
+    # Shutdown logic here if needed
+
+app = FastAPI(title=settings.app_title, version=settings.app_version, lifespan=lifespan)
 
 # Parse allowed origins
 origins = settings.allowed_origins.split(",") if settings.allowed_origins != "*" else ["*"]
@@ -23,7 +32,9 @@ logger.info(f"Configured CORS Allowed Origins: {origins}")
 # CORS middleware configuration
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins= ["https://hackhton-ii.vercel.app/",
+                   "http://localhost:3000",
+                   ],
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["Content-Type", "Authorization"],
@@ -37,17 +48,6 @@ app.include_router(auth_router)
 app.include_router(todos_router)
 
 
-@app.on_event("startup")
-def on_startup():
-    """
-    Initialize database tables when the application starts.
-    This ensures that all required tables are created before the application begins serving requests.
-    """
-    # Validate required configuration
-    if not settings.jwt_secret_key:
-        raise ValueError("JWT_SECRET_KEY environment variable must be set")
-
-    create_db_and_tables()
 
 
 @app.get("/")
@@ -88,7 +88,7 @@ async def health_check():
 
 # Example endpoint showing how to use database sessions with dependency injection
 @app.get("/test-db")
-async def test_db_connection(session: Session = Depends(get_session)):
+async def test_db_connection(session: AsyncSession = Depends(get_session)):
     """
     Test endpoint to verify database session management is working correctly.
     This endpoint demonstrates how to use the database session dependency.

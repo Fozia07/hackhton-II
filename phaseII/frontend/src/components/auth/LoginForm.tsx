@@ -77,6 +77,7 @@ export function LoginForm() {
           onChange={(e) => setPassword(e.target.value)}
           placeholder="••••••••"
           required
+          autoComplete="current-password"
         />
       </FormField>
 
