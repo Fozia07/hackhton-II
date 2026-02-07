@@ -1,0 +1,68 @@
+# API Contract: Phase II Authentication API
+
+## Login Endpoint
+```
+POST /auth/signin
+```
+
+### Request
+```json
+{
+  "username": "string",
+  "password": "string"
+}
+```
+
+### Response (Success)
+```json
+{
+  "access_token": "string",
+  "token_type": "string",
+  "username": "string",
+  "user_id": "string"
+}
+```
+
+### Response (Error)
+```json
+{
+  "detail": "string"
+}
+```
+
+## Chat Endpoint
+```
+POST /api/{username}/chat
+```
+
+### Path Parameters
+- `username`: string - The canonical username from the JWT token
+
+### Headers
+```
+Authorization: Bearer {access_token}
+Content-Type: application/json
+```
+
+### Request Body
+```json
+{
+  "message": "string",
+  "conversation_id": "string | null"
+}
+```
+
+### Response (Success)
+```json
+{
+  "success": "boolean",
+  "conversation_id": "string",
+  "response": "string",
+  "tool_calls": "array"
+}
+```
+
+### Response (Error)
+- `401 Unauthorized`: Invalid or expired token
+- `403 Forbidden`: Username in path doesn't match token
+- `404 Not Found`: User not found

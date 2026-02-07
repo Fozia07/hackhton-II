@@ -1,48 +1,71 @@
-# Backend for Hackathon 2 – Phase 2
+# Phase II Backend
 
-This is the backend for the Hackathon 2 project, built with FastAPI and integrated with Neon PostgreSQL database using SQLModel. It's prepared for integration with the existing frontend and includes JWT-based authentication.
+FastAPI backend for the Phase II authentication system with JWT-based authentication and PostgreSQL database.
 
 ## Prerequisites
 
-- Python 3.9+
-- UV package manager
-- Neon PostgreSQL database instance (for production)
+- Python 3.11+
+- PostgreSQL database (or Neon hosted)
+- Virtual environment tool (venv or UV)
 
-## Setup
+## Quick Start
 
-1. Navigate to this directory: `cd phaseII/backend`
-2. Create and activate the UV virtual environment:
-   ```bash
-   uv venv
-   source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-   ```
-3. Install dependencies:
-   ```bash
-   uv pip install -r requirements.txt
-   ```
-4. Configure your database connection by copying `.env.example` to `.env`:
-   ```bash
-   cp .env.example .env
-   ```
-5. Update the environment variables in `.env`:
-   - `DATABASE_URL` with your Neon PostgreSQL connection string:
-     ```
-     DATABASE_URL=postgresql://username:password@ep-xxx.us-east-1.aws.neon.tech/dbname?sslmode=require
-     ```
-   - `JWT_SECRET_KEY` with a strong secret key for JWT signing
-   - `JWT_ALGORITHM` (default: HS256)
-   - `ACCESS_TOKEN_EXPIRE_MINUTES` (default: 30)
-
-## Running the Backend
-
-To start the backend server:
+### 1. Create Virtual Environment
 
 ```bash
+python -m venv .venv
 
-\
+# Activate virtual environment
+# On Windows:
+.venv\Scripts\activate
+# On macOS/Linux:
+source .venv/bin/activate
 ```
 
-The server will start at `http://localhost:8000` by default.
+### 2. Install Dependencies
+
+```bash
+# Production dependencies
+pip install -r requirements.txt
+
+# Development dependencies (optional)
+pip install -r requirements-dev.txt
+```
+
+### 3. Configure Environment Variables
+
+Create a `.env` file in the backend directory:
+
+```env
+# Application Configuration
+APP_TITLE=Phase 2 Backend
+APP_VERSION=0.1.0
+DEBUG=False
+
+# Database Configuration
+DATABASE_URL=postgresql+asyncpg://username:password@host:port/database
+
+# JWT Configuration
+JWT_SECRET_KEY=your-secret-key-here
+JWT_ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=30
+
+# CORS Configuration
+ALLOWED_ORIGINS=http://localhost:3001,http://localhost:3002,https://hackhton-ii.vercel.app
+```
+
+**Generate JWT Secret Key**:
+```bash
+openssl rand -hex 32
+```
+
+### 4. Run the Backend
+
+```bash
+uvicorn app.main:app --host 0.0.0.0 --port 8001 --reload
+```
+
+The backend will be available at http://localhost:8001
 
 ## Authentication Endpoints
 

@@ -131,13 +131,18 @@ export const TodoProvider: React.FC<TodoProviderProps> = ({ children, authState 
 
     dispatch({ type: 'CREATE_TODO_START' });
     try {
+      console.log('Creating todo with data:', todoData);
       const response = await todoService.createTodo(todoData);
+      console.log('Create todo response:', response);
       if (response.data) {
+        console.log('Todo created successfully:', response.data);
         dispatch({ type: 'CREATE_TODO_SUCCESS', payload: response.data });
       } else {
+        console.error('Failed to create todo:', response.error);
         dispatch({ type: 'CREATE_TODO_ERROR', payload: response.error || 'Failed to create todo' });
       }
     } catch (error: any) {
+      console.error('Error creating todo:', error);
       dispatch({ type: 'CREATE_TODO_ERROR', payload: error.message });
     }
   };

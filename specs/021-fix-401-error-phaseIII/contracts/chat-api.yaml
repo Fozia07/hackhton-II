@@ -1,0 +1,108 @@
+# API Contract: Chat Endpoint Authentication
+
+## Endpoint: POST /api/{user_id}/chat
+
+### Request
+```
+POST /api/{user_id}/chat HTTP/1.1
+Host: phaseIII-api.example.com
+Authorization: Bearer {jwt_token}
+Content-Type: application/json
+```
+
+#### Path Parameters
+- `user_id` (string, required): The ID of the user making the request. Must match the user ID in the JWT token.
+
+#### Request Body
+```json
+{
+  "message": "string",
+  "timestamp": "ISO 8601 datetime (optional)",
+  "conversation_id": "string (optional)"
+}
+```
+
+#### Headers
+- `Authorization` (string, required): Bearer token containing the JWT from Phase II authentication
+- `Content-Type` (string, required): Must be "application/json"
+
+### Response
+
+#### Success Response (200)
+```
+HTTP/1.1 200 OK
+Content-Type: application/json
+```
+```json
+{
+  "success": true,
+  "message": "Chat message processed successfully",
+  "conversation_id": "string",
+  "response": "AI-generated response",
+  "timestamp": "ISO 8601 datetime"
+}
+```
+
+#### Error Responses
+
+##### 401 Unauthorized
+```
+HTTP/1.1 401 Unauthorized
+Content-Type: application/json
+```
+```json
+{
+  "error": "Unauthorized",
+  "message": "Invalid or expired token",
+  "code": "AUTH_001"
+}
+```
+
+##### 403 Forbidden
+```
+HTTP/1.1 403 Forbidden
+Content-Type: application/json
+```
+```json
+{
+  "error": "Forbidden",
+  "message": "Insufficient permissions for this user",
+  "code": "AUTH_002"
+}
+```
+
+##### 422 Unprocessable Entity
+```
+HTTP/1.1 422 Unprocessable Entity
+Content-Type: application/json
+```
+```json
+{
+  "error": "Validation Error",
+  "message": "Request validation failed",
+  "details": {
+    "field": "error_description"
+  },
+  "code": "VALIDATION_001"
+}
+```
+
+### Authentication Requirements
+1. JWT token must be valid and not expired
+2. Token must contain valid user identity claims
+3. User ID in path parameter must match user ID in token claims
+4. Token must have required scopes for chat access
+
+### Token Claims Validation
+The following claims must be present and valid in the JWT:
+- `sub` (subject): Must match the user ID
+- `exp` (expiration): Must be in the future
+- `iat` (issued at): Must be in the past
+- `iss` (issuer): Must match Phase II issuer
+- `aud` (audience): Must include Phase III API
+
+### Security Considerations
+- Tokens must be validated using the same signing method as Phase II
+- Token replay attacks prevented by using unique identifiers if available
+- Rate limiting applied per authenticated user
+- Sensitive information not exposed in error messages

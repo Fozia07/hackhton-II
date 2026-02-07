@@ -1,0 +1,134 @@
+# API Contract: Google Gemini API Integration
+
+## Gemini API Request Format
+```
+POST https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={GEMINI_API_KEY}
+```
+
+OR with Authorization header:
+
+```
+POST https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent
+Authorization: Bearer {GEMINI_API_KEY}
+Content-Type: application/json
+```
+
+### Request Body
+```json
+{
+  "contents": [
+    {
+      "role": "user",
+      "parts": [
+        {
+          "text": "Your message here"
+        }
+      ]
+    }
+  ],
+  "generationConfig": {
+    "temperature": 0.7,
+    "maxOutputTokens": 1000
+  },
+  "tools": [
+    {
+      "function_declarations": [
+        {
+          "name": "add_task",
+          "description": "Create a new task for the user",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "user_id": {"type": "string", "description": "The ID of the user"},
+              "title": {"type": "string", "description": "The title of the task"},
+              "description": {"type": "string", "description": "The description of the task"}
+            },
+            "required": ["user_id", "title"]
+          }
+        },
+        {
+          "name": "list_tasks",
+          "description": "Retrieve tasks for the user with optional filtering",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "user_id": {"type": "string", "description": "The ID of the user"},
+              "status": {"type": "string", "description": "Filter tasks by status (all, pending, completed)"}
+            },
+            "required": ["user_id"]
+          }
+        }
+      ]
+    }
+  ]
+}
+```
+
+## Gemini API Response Format
+### Success Response (200)
+```json
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "AI response text here"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0,
+      "safetyRatings": [
+        {
+          "category": "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+          "probability": "NEGLIGIBLE"
+        }
+      ]
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 10,
+    "candidatesTokenCount": 20,
+    "totalTokenCount": 30
+  }
+}
+```
+
+### Tool Call Response Format
+```json
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "functionCall": {
+              "name": "add_task",
+              "args": {
+                "user_id": "user123",
+                "title": "Buy groceries",
+                "description": "Milk, eggs, bread"
+              }
+            }
+          }
+        ],
+        "role": "model"
+      }
+    }
+  ]
+}
+```
+
+## Error Response Format
+### Error Response (400, 401, 403, etc.)
+```json
+{
+  "error": {
+    "code": 400,
+    "message": "API key not valid. Please pass a valid API key.",
+    "status": "INVALID_ARGUMENT"
+  }
+}
+```

@@ -10,9 +10,14 @@ from .routes.todos import router as todos_router
 
 
 import logging
+import time
 
-# Set up logging
-logging.basicConfig(level=logging.INFO)
+# Set up logging with detailed format
+logging.basicConfig(
+    level=logging.INFO,
+    format='[%(asctime)s] %(levelname)s - %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
 logger = logging.getLogger(__name__)
 
 @asynccontextmanager
@@ -25,6 +30,28 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title=settings.app_title, version=settings.app_version, lifespan=lifespan)
 
+# Request logging middleware
+@app.middleware("http")
+async def log_requests(request, call_next):
+    """
+    Middleware to log all incoming requests with method, path, status code, and duration.
+    """
+    start_time = time.time()
+
+    # Log incoming request
+    logger.info(f"→ {request.method} {request.url.path}")
+
+    # Process request
+    response = await call_next(request)
+
+    # Calculate duration
+    duration_ms = (time.time() - start_time) * 1000
+
+    # Log response
+    logger.info(f"← {request.method} {request.url.path} {response.status_code} {duration_ms:.2f}ms")
+
+    return response
+
 # Parse allowed origins
 origins = settings.allowed_origins.split(",") if settings.allowed_origins != "*" else ["*"]
 logger.info(f"Configured CORS Allowed Origins: {origins}")
@@ -32,9 +59,7 @@ logger.info(f"Configured CORS Allowed Origins: {origins}")
 # CORS middleware configuration
 app.add_middleware(
     CORSMiddleware,
-    allow_origins= ["https://hackhton-ii.vercel.app/",
-                   "http://localhost:3000",
-                   ],
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["Content-Type", "Authorization"],
@@ -62,28 +87,75 @@ async def root():
 async def health_check():
     """
     Health check endpoint that returns the status of the application.
+    Tests actual database connectivity and measures latency.
     """
-    try:
-        # Test database connectivity
-        if engine:
-            from sqlmodel import select
-            from .models.user import User
-            # Just test if we can access the engine
-            db_status = "connected" if engine else "disconnected"
-        else:
-            db_status = "not configured"
+    import time
+    from datetime import datetime
 
-        return {
-            "status": "ok",
-            "database": db_status,
-            "timestamp": __import__('datetime').datetime.now().isoformat()
+    try:
+        # Test database connectivity with actual query
+        start_time = time.time()
+        async with AsyncSession(engine) as session:
+            from sqlmodel import select
+            await session.execute(select(1))
+        latency_ms = int((time.time() - start_time) * 1000)
+
+        # Determine status based on latency
+        if latency_ms < 100:
+            status = "ok"
+        elif latency_ms < 500:
+            status = "degraded"
+        else:
+            status = "error"
+
+        response = {
+            "status": status,
+            "timestamp": datetime.utcnow().isoformat() + "Z",
+            "version": settings.app_version,
+            "database": {
+                "status": "connected",
+                "latency_ms": latency_ms
+            },
+            "endpoints": {
+                "auth": "available",
+                "todos": "available"
+            }
         }
+
+        # Return 503 if status is error
+        if status == "error":
+            from fastapi import Response
+            return Response(
+                content=str(response),
+                status_code=503,
+                media_type="application/json"
+            )
+
+        return response
+
     except Exception as e:
-        return {
+        from fastapi import Response
+        import json
+
+        error_response = {
             "status": "error",
-            "error": str(e),
-            "timestamp": __import__('datetime').datetime.now().isoformat()
+            "timestamp": datetime.utcnow().isoformat() + "Z",
+            "version": settings.app_version,
+            "database": {
+                "status": "disconnected",
+                "error": str(e)
+            },
+            "endpoints": {
+                "auth": "unavailable",
+                "todos": "unavailable"
+            }
         }
+
+        return Response(
+            content=json.dumps(error_response),
+            status_code=503,
+            media_type="application/json"
+        )
 
 
 # Example endpoint showing how to use database sessions with dependency injection

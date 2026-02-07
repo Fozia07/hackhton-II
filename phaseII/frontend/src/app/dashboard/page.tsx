@@ -11,7 +11,7 @@ import { TodoForm } from '@/components/todo/TodoForm';
 
 export default function DashboardPage() {
   const [mounted, setMounted] = useState(false);
-  const [activeTab, setActiveTab] = useState('today');
+  const [activeTab, setActiveTab] = useState('all');
   const { state, createTodo, updateTodo, deleteTodo, setSelectedTodo } = useTodo();
   const [showAddForm, setShowAddForm] = useState(false);
   const reducedMotion = useReducedMotion();

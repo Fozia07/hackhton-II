@@ -1,6 +1,6 @@
 import type { Todo, TodoCreate, TodoUpdate } from '../../types/todo';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001';
 
 interface ApiResponse<T> {
   data?: T;

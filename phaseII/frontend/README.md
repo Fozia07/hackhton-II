@@ -26,12 +26,12 @@ A responsive, authenticated web frontend for a multi-user Todo application built
 ### Prerequisites
 
 - Node.js 18+
-- npm
+- npm or yarn
 
 ### Installation
 
 1. Clone the repository
-2. Navigate to the frontend directory
+2. Navigate to the frontend directory: `cd phaseII/frontend`
 3. Install dependencies:
 
 ```bash
@@ -44,7 +44,18 @@ npm install
 cp .env.example .env.local
 ```
 
-5. Update the environment variables in `.env.local` with your configuration
+5. Update the environment variables in `.env.local`:
+
+```env
+# API Configuration
+NEXT_PUBLIC_API_URL=http://localhost:8001
+NEXT_PUBLIC_APP_URL=http://localhost:3001
+
+# Environment
+NODE_ENV=development
+```
+
+**Important**: Ensure `NEXT_PUBLIC_API_URL` points to your local backend (http://localhost:8001) for development.
 
 ### Running the Development Server
 
@@ -52,7 +63,7 @@ cp .env.example .env.local
 npm run dev
 ```
 
-The application will be available at [http://localhost:3000](http://localhost:3000).
+The application will be available at [http://localhost:3001](http://localhost:3001).
 
 ### Building for Production
 
@@ -65,6 +76,16 @@ npm run build
 ```bash
 npm start
 ```
+
+## Environment Variables
+
+| Variable | Required | Description | Example |
+|----------|----------|-------------|---------|
+| `NEXT_PUBLIC_API_URL` | Yes | Backend API URL | http://localhost:8001 (dev) or https://your-backend.railway.app (prod) |
+| `NEXT_PUBLIC_APP_URL` | Yes | Frontend URL | http://localhost:3001 (dev) or https://your-app.vercel.app (prod) |
+| `NODE_ENV` | No | Environment | development or production |
+
+**Note**: All environment variables prefixed with `NEXT_PUBLIC_` are exposed to the browser.
 
 ## Project Structure
 

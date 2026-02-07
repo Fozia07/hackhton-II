@@ -1,0 +1,386 @@
+openapi: 3.0.0
+info:
+  title: Todo AI Chatbot MCP Tools API
+  version: 1.0.0
+  description: API contracts for the Model Context Protocol (MCP) tools in the Todo AI Chatbot system
+
+paths:
+  /mcp/add_task:
+    post:
+      summary: Add a new task for the authenticated user
+      description: Creates a new task in the user's task list
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddTaskRequest'
+      responses:
+        '200':
+          description: Task created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AddTaskResponse'
+        '400':
+          description: Invalid input parameters
+        '401':
+          description: Unauthorized access
+        '500':
+          description: Internal server error
+      security:
+        - bearerAuth: []
+
+  /mcp/list_tasks:
+    post:
+      summary: List tasks for the authenticated user
+      description: Retrieves all tasks for the authenticated user with optional filtering
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ListTasksRequest'
+      responses:
+        '200':
+          description: Tasks retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListTasksResponse'
+        '401':
+          description: Unauthorized access
+        '500':
+          description: Internal server error
+      security:
+        - bearerAuth: []
+
+  /mcp/complete_task:
+    post:
+      summary: Mark a task as completed
+      description: Updates the completion status of a specific task
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CompleteTaskRequest'
+      responses:
+        '200':
+          description: Task completed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CompleteTaskResponse'
+        '400':
+          description: Invalid task ID or task not found
+        '401':
+          description: Unauthorized access
+        '404':
+          description: Task not found
+        '500':
+          description: Internal server error
+      security:
+        - bearerAuth: []
+
+  /mcp/delete_task:
+    post:
+      summary: Delete a task from the user's list
+      description: Removes a specific task from the user's task list
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeleteTaskRequest'
+      responses:
+        '200':
+          description: Task deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeleteTaskResponse'
+        '400':
+          description: Invalid task ID
+        '401':
+          description: Unauthorized access
+        '404':
+          description: Task not found
+        '500':
+          description: Internal server error
+      security:
+        - bearerAuth: []
+
+  /mcp/update_task:
+    post:
+      summary: Update an existing task
+      description: Modifies properties of an existing task
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateTaskRequest'
+      responses:
+        '200':
+          description: Task updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateTaskResponse'
+        '400':
+          description: Invalid input parameters
+        '401':
+          description: Unauthorized access
+        '404':
+          description: Task not found
+        '500':
+          description: Internal server error
+      security:
+        - bearerAuth: []
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    AddTaskRequest:
+      type: object
+      required:
+        - title
+      properties:
+        title:
+          type: string
+          description: The task title/description
+          example: "Buy groceries"
+        priority:
+          type: string
+          enum: [low, medium, high]
+          description: Priority level
+          example: "medium"
+        due_date:
+          type: string
+          format: date-time
+          description: Due date in ISO format
+          example: "2023-12-31T23:59:59Z"
+        category:
+          type: string
+          description: Task category
+          example: "personal"
+
+    AddTaskResponse:
+      type: object
+      required:
+        - success
+        - task
+      properties:
+        success:
+          type: boolean
+          description: Indicates if the operation was successful
+          example: true
+        task:
+          $ref: '#/components/schemas/Task'
+
+    ListTasksRequest:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [all, pending, completed]
+          description: Filter by task status
+          example: "pending"
+        category:
+          type: string
+          description: Filter by category
+          example: "work"
+        priority:
+          type: string
+          enum: [low, medium, high]
+          description: Filter by priority
+          example: "high"
+
+    ListTasksResponse:
+      type: object
+      required:
+        - success
+        - tasks
+      properties:
+        success:
+          type: boolean
+          description: Indicates if the operation was successful
+          example: true
+        tasks:
+          type: array
+          items:
+            $ref: '#/components/schemas/Task'
+
+    CompleteTaskRequest:
+      type: object
+      required:
+        - task_id
+      properties:
+        task_id:
+          type: string
+          format: uuid
+          description: The ID of the task to complete
+          example: "123e4567-e89b-12d3-a456-426614174000"
+
+    CompleteTaskResponse:
+      type: object
+      required:
+        - success
+        - task
+      properties:
+        success:
+          type: boolean
+          description: Indicates if the operation was successful
+          example: true
+        task:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+              description: The task ID
+              example: "123e4567-e89b-12d3-a456-426614174000"
+            title:
+              type: string
+              description: The task title
+              example: "Buy groceries"
+            completed:
+              type: boolean
+              description: Whether the task is completed
+              example: true
+            completed_at:
+              type: string
+              format: date-time
+              description: When the task was completed
+              example: "2023-11-20T10:30:00Z"
+
+    DeleteTaskRequest:
+      type: object
+      required:
+        - task_id
+      properties:
+        task_id:
+          type: string
+          format: uuid
+          description: The ID of the task to delete
+          example: "123e4567-e89b-12d3-a456-426614174000"
+
+    DeleteTaskResponse:
+      type: object
+      required:
+        - success
+        - deleted_task_id
+      properties:
+        success:
+          type: boolean
+          description: Indicates if the operation was successful
+          example: true
+        deleted_task_id:
+          type: string
+          format: uuid
+          description: The ID of the deleted task
+          example: "123e4567-e89b-12d3-a456-426614174000"
+
+    UpdateTaskRequest:
+      type: object
+      required:
+        - task_id
+      properties:
+        task_id:
+          type: string
+          format: uuid
+          description: The ID of the task to update
+          example: "123e4567-e89b-12d3-a456-426614174000"
+        title:
+          type: string
+          description: New task title
+          example: "Buy weekly groceries"
+        priority:
+          type: string
+          enum: [low, medium, high]
+          description: New priority level
+          example: "high"
+        due_date:
+          type: string
+          format: date-time
+          description: New due date
+          example: "2023-12-31T23:59:59Z"
+        category:
+          type: string
+          description: New category
+          example: "shopping"
+        completed:
+          type: boolean
+          description: New completion status
+          example: true
+
+    UpdateTaskResponse:
+      type: object
+      required:
+        - success
+        - task
+      properties:
+        success:
+          type: boolean
+          description: Indicates if the operation was successful
+          example: true
+        task:
+          $ref: '#/components/schemas/Task'
+
+    Task:
+      type: object
+      required:
+        - id
+        - title
+        - completed
+        - created_at
+        - updated_at
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: The task ID
+          example: "123e4567-e89b-12d3-a456-426614174000"
+        title:
+          type: string
+          description: The task title
+          example: "Buy groceries"
+        priority:
+          type: string
+          enum: [low, medium, high]
+          description: Priority level
+          example: "medium"
+        due_date:
+          type: string
+          format: date-time
+          description: Due date
+          example: "2023-12-31T23:59:59Z"
+        category:
+          type: string
+          description: Task category
+          example: "personal"
+        completed:
+          type: boolean
+          description: Whether the task is completed
+          example: false
+        created_at:
+          type: string
+          format: date-time
+          description: When the task was created
+          example: "2023-11-20T09:00:00Z"
+        updated_at:
+          type: string
+          format: date-time
+          description: When the task was last updated
+          example: "2023-11-20T09:00:00Z"
+        completed_at:
+          type: string
+          format: date-time
+          description: When the task was completed (if applicable)
+          example: null
