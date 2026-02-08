@@ -38,7 +38,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!isInitialized) return;
 
     const isLoginPage = pathname === '/login';
-    const isChatPage = pathname === '/chat' || pathname.startsWith('/chat');
 
     if (!token && !isLoginPage) {
       // Redirect to login if not authenticated and not on login page

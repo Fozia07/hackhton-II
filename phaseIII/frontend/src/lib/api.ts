@@ -2,16 +2,16 @@
  * API client for the Todo AI Chatbot backend
  */
 
-interface ChatRequest {
-  message: string;
-  conversation_id?: string | null;
-}
-
 interface ChatResponse {
   success: boolean;
   conversation_id: string;
   response: string;
-  tool_calls: Array<any>;
+  tool_calls: Array<{
+    id?: string;
+    name?: string;
+    arguments?: string;
+    function?: { name: string; arguments: string };
+  }>;
   error?: string;
 }
 
@@ -58,7 +58,7 @@ export async function sendChatMessage(
 export async function getConversationHistory(
   token: string,
   conversationId: string
-): Promise<any[]> {
+): Promise<unknown[]> {
   const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://127.0.0.1:8000';
 
   const response = await fetch(`${BASE_URL}/api/conversation/${conversationId}`, {

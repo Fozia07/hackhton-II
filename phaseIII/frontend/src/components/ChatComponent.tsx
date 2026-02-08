@@ -53,7 +53,8 @@ export default function ChatComponent({ token, username }: ChatProps) {
     setIsLoading(true);
 
     try {
-      // Call backend API using username instead of userId
+      // Call backend API using username
+      console.log(`Sending message for user: ${username}`);
       const response = await sendChatMessage( input, token, conversationId);
 
       // Update conversation ID if new conversation was created
@@ -84,16 +85,17 @@ export default function ChatComponent({ token, username }: ChatProps) {
       };
 
       setMessages(prev => [...prev, assistantMessage]);
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error sending message:', error);
+      const err = error as Error;
 
       // Add error message to UI
-      let errorMessageContent = error.message || 'Sorry, I encountered an error processing your request. Please try again.';
+      let errorMessageContent = err.message || 'Sorry, I encountered an error processing your request. Please try again.';
 
       // Handle specific error codes
-      if (error.message && error.message.includes('401')) {
+      if (err.message && err.message.includes('401')) {
         errorMessageContent = 'Invalid token. Please check your JWT token.';
-      } else if (error.message && error.message.includes('404')) {
+      } else if (err.message && err.message.includes('404')) {
         errorMessageContent = 'Not found. Please check your username.';
       }
 
@@ -116,7 +118,7 @@ export default function ChatComponent({ token, username }: ChatProps) {
         {messages.length === 0 ? (
           <div className="text-center text-gray-500 mt-8">
             <p>Start a conversation with the AI assistant!</p>
-            <p className="text-sm mt-2">Try: "Add a task to buy groceries" or "Show my tasks"</p>
+            <p className="text-sm mt-2">Try: &quot;Add a task to buy groceries&quot; or &quot;Show my tasks&quot;</p>
           </div>
         ) : (
           <>

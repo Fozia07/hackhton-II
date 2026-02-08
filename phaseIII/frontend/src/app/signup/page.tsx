@@ -213,7 +213,7 @@ export default function SignupPage() {
               <strong>Phase II backend:</strong> Make sure the Phase II backend is running on http://127.0.0.1:8001
             </p>
             <p className="text-xs text-blue-700 mt-1">
-              After signup, you'll be redirected to the login page
+              After signup, you&apos;ll be redirected to the login page
             </p>
           </div>
         </div>
