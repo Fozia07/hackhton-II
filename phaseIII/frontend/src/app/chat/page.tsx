@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import ChatComponent from '@/components/ChatComponent';
+import ChatComponent from '../../components/ChatComponent';
 
 export default function ChatPage() {
   const [token, setToken] = useState<string | null>(null);
