@@ -37,14 +37,10 @@ class AIAgentService:
         return [
             {
                 "name": "add_task",
-                "description": "Create a new task for the user",
+                "description": "Create a new task for the user. Do NOT include user_id - it will be added automatically.",
                 "parameters": {
                     "type": "object",
                     "properties": {
-                        "user_id": {
-                            "type": "string",
-                            "description": "The ID of the user"
-                        },
                         "title": {
                             "type": "string",
                             "description": "The title of the task"
@@ -54,73 +50,57 @@ class AIAgentService:
                             "description": "The description of the task"
                         }
                     },
-                    "required": ["user_id", "title"]
+                    "required": ["title"]
                 }
             },
             {
                 "name": "list_tasks",
-                "description": "Retrieve tasks for the user with optional filtering",
+                "description": "Retrieve tasks for the user with optional filtering. Do NOT include user_id - it will be added automatically.",
                 "parameters": {
                     "type": "object",
                     "properties": {
-                        "user_id": {
-                            "type": "string",
-                            "description": "The ID of the user"
-                        },
                         "status": {
                             "type": "string",
                             "description": "Filter tasks by status (all, pending, completed)"
                         }
                     },
-                    "required": ["user_id"]
+                    "required": []
                 }
             },
             {
                 "name": "complete_task",
-                "description": "Mark a task as completed",
+                "description": "Mark a task as completed. Do NOT include user_id - it will be added automatically.",
                 "parameters": {
                     "type": "object",
                     "properties": {
-                        "user_id": {
-                            "type": "string",
-                            "description": "The ID of the user"
-                        },
                         "task_id": {
                             "type": "string",
                             "description": "The ID of the task to complete"
                         }
                     },
-                    "required": ["user_id", "task_id"]
+                    "required": ["task_id"]
                 }
             },
             {
                 "name": "delete_task",
-                "description": "Remove a task from the user's list",
+                "description": "Remove a task from the user's list. Do NOT include user_id - it will be added automatically.",
                 "parameters": {
                     "type": "object",
                     "properties": {
-                        "user_id": {
-                            "type": "string",
-                            "description": "The ID of the user"
-                        },
                         "task_id": {
                             "type": "string",
                             "description": "The ID of the task to delete"
                         }
                     },
-                    "required": ["user_id", "task_id"]
+                    "required": ["task_id"]
                 }
             },
             {
                 "name": "update_task",
-                "description": "Modify properties of an existing task",
+                "description": "Modify properties of an existing task. Do NOT include user_id - it will be added automatically.",
                 "parameters": {
                     "type": "object",
                     "properties": {
-                        "user_id": {
-                            "type": "string",
-                            "description": "The ID of the user"
-                        },
                         "task_id": {
                             "type": "string",
                             "description": "The ID of the task to update"
@@ -138,7 +118,7 @@ class AIAgentService:
                             "description": "New completion status for the task"
                         }
                     },
-                    "required": ["user_id", "task_id"]
+                    "required": ["task_id"]
                 }
             }
         ]
@@ -226,12 +206,16 @@ class AIAgentService:
         Args:
             function_name: Name of function to execute
             arguments: Function arguments
-            user_id: User ID for task operations
+            user_id: User ID for task operations (authenticated user)
 
         Returns:
             Tool execution result as JSON string
         """
         try:
+            # CRITICAL: Always override user_id with the authenticated user's ID
+            # The AI might generate random user_ids, so we force the correct one
+            arguments["user_id"] = str(user_id)
+
             if function_name == "add_task":
                 result = await mcp_client.add_task(**arguments)
             elif function_name == "list_tasks":
@@ -413,7 +397,11 @@ IMPORTANT: You have access to 5 tools that you MUST use when appropriate:
 - delete_task: When user wants to remove/delete a task, you MUST call this tool
 - update_task: When user wants to change/modify a task, you MUST call this tool
 
-CRITICAL: Always use the appropriate tool for task operations. Do not just describe what you would do - actually call the tool.
+CRITICAL RULES:
+1. Always use the appropriate tool for task operations. Do not just describe what you would do - actually call the tool.
+2. NEVER include "user_id" in your tool calls - it is automatically added by the system.
+3. When listing tasks, call list_tasks with NO parameters or just {"status": "all"}.
+4. When updating/completing/deleting tasks, use the task_id from the list_tasks response.
 
 After calling a tool, respond in a friendly, helpful manner:
 - For successful actions: "Added task 'Buy groceries' ✅", "Completed task 'Clean room' ✅", etc.

@@ -1,6 +1,0 @@
-{
-  "version": 2,
-  "buildCommand": "cd phaseIII/frontend && npm run build",
-  "installCommand": "cd phaseIII/frontend && npm install",
-  "outputDirectory": "phaseIII/frontend/.next"
-}
