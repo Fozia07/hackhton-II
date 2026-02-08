@@ -1,5 +1,7 @@
 {
   "version": 2,
   "rootDirectory": "phaseIII/frontend",
-  "framework": "nextjs"
+  "framework": "nextjs",
+  "buildCommand": "next build",
+  "installCommand": "npm install"
 }
