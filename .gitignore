@@ -12,6 +12,7 @@ eggs/
 .eggs/
 lib/
 !phaseII/frontend/src/lib/
+!phaseIII/frontend/src/lib/
 !src/lib/
 lib64/
 parts/
