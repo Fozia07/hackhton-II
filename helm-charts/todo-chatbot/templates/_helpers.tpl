@@ -67,6 +67,6 @@ Frontend fullname
 {{/*
 MCP Server fullname
 */}}
-{{- define "todo-chatbot.mcp-server.fullname" -}}
+{{- define "todo-chatbot.mcpserver.fullname" -}}
 {{- printf "%s-mcp-server" (include "todo-chatbot.fullname" .) | trunc 63 | trimSuffix "-" -}}
 {{- end }}
