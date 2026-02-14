@@ -1,0 +1,83 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "todo-chatbot.mcp-server.fullname" . }}
+  labels:
+    {{- include "todo-chatbot.labels" . | nindent 4 }}
+    component: mcp-server
+spec:
+  {{- if not .Values.mcp-server.autoscaling.enabled }}
+  replicas: {{ .Values.mcp-server.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "todo-chatbot.selectorLabels" . | nindent 6 }}
+      component: mcp-server
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      {{- with .Values.mcp-server.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "todo-chatbot.selectorLabels" . | nindent 8 }}
+        component: mcp-server
+    spec:
+      {{- with .Values.mcp-server.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        {{- toYaml .Values.mcp-server.podSecurityContext | nindent 8 }}
+      containers:
+        - name: mcp-server
+          securityContext:
+            {{- toYaml .Values.mcp-server.securityContext | nindent 12 }}
+          image: "{{ .Values.mcp-server.image.repository }}:{{ .Values.mcp-server.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.global.imagePullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.mcp-server.service.targetPort }}
+              protocol: TCP
+          env:
+            - name: PORT
+              value: {{ .Values.mcp-server.env.PORT | quote }}
+            - name: LOG_LEVEL
+              value: {{ .Values.mcp-server.env.LOG_LEVEL | quote }}
+            - name: DATABASE_URL
+              value: {{ .Values.mcp-server.env.DATABASE_URL | quote }}
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.mcp-server.livenessProbe.path }}
+              port: http
+            initialDelaySeconds: {{ .Values.mcp-server.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.mcp-server.livenessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.mcp-server.livenessProbe.timeoutSeconds }}
+            failureThreshold: {{ .Values.mcp-server.livenessProbe.failureThreshold }}
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.mcp-server.readinessProbe.path }}
+              port: http
+            initialDelaySeconds: {{ .Values.mcp-server.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.mcp-server.readinessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.mcp-server.readinessProbe.timeoutSeconds }}
+            failureThreshold: {{ .Values.mcp-server.readinessProbe.failureThreshold }}
+          resources:
+            {{- toYaml .Values.mcp-server.resources | nindent 12 }}
+      {{- with .Values.mcp-server.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.mcp-server.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.mcp-server.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

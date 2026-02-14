@@ -96,3 +96,47 @@ frontend:
   nodeSelector: {}
   tolerations: []
   affinity: {}
+
+# MCP Server configuration
+mcp-server:
+  enabled: true
+  replicaCount: 2
+  image:
+    repository: mcp-server
+    tag: latest
+  service:
+    type: ClusterIP
+    port: 8002
+    targetPort: 8002
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
+  env:
+    PORT: "8002"
+    LOG_LEVEL: info
+    DATABASE_URL: postgresql+asyncpg://neondb_owner:npg_fiR5GnczZYI4@ep-summer-firefly-a78vco82-pooler.ap-southeast-2.aws.neon.tech/neondb
+  livenessProbe:
+    path: /docs
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+  readinessProbe:
+    path: /docs
+    initialDelaySeconds: 5
+    periodSeconds: 5
+    timeoutSeconds: 3
+    failureThreshold: 3
+  autoscaling:
+    enabled: false
+  podAnnotations: {}
+  imagePullSecrets: []
+  podSecurityContext: {}
+  securityContext: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
