@@ -1,0 +1,411 @@
+# Frontend Service Configuration Contract
+
+**Service**: Frontend Web Application
+**Component**: frontend
+**Tier**: web
+**Version**: 1.0.0
+
+---
+
+## Service Definition
+
+### Metadata
+- **Name**: todo-chatbot-frontend
+- **Component**: frontend
+- **Tier**: web
+- **Description**: Frontend web application for Todo AI Chatbot that provides user interface and communicates with backend
+
+### Service Type
+- **Type**: NodePort (external access)
+- **Port**: 80
+- **Target Port**: 3000
+- **Node Port**: 30080 (optional, for consistent access)
+- **Protocol**: TCP
+
+---
+
+## Deployment Configuration
+
+### Replicas
+- **Default**: 2
+- **Minimum**: 1
+- **Maximum**: 5 (for local Minikube)
+- **Rationale**: 2 replicas provide basic HA without excessive resource usage
+
+### Update Strategy
+- **Type**: RollingUpdate
+- **Max Surge**: 1
+- **Max Unavailable**: 0
+- **Rationale**: Zero-downtime deployments with gradual rollout
+
+---
+
+## Container Configuration
+
+### Image
+- **Repository**: phase4-frontend
+- **Tag**: latest
+- **Pull Policy**: IfNotPresent
+- **Rationale**: Local images in Minikube, no registry pull needed
+
+### Ports
+- **Container Port**: 3000
+- **Protocol**: TCP
+- **Name**: http
+
+---
+
+## Resource Allocation
+
+### Requests (Guaranteed)
+- **CPU**: 50m (0.05 CPU cores)
+- **Memory**: 64Mi
+
+### Limits (Maximum)
+- **CPU**: 100m (0.1 CPU cores)
+- **Memory**: 128Mi
+
+### Rationale
+- Lighter workload than backend (serves static content)
+- Conservative limits suitable for local development
+- Allows 2 replicas within typical Minikube resources
+- Prevents resource exhaustion
+
+### Resource Calculation (2 replicas)
+- **Total Requests**: 100m CPU, 128Mi memory
+- **Total Limits**: 200m CPU, 256Mi memory
+
+---
+
+## Environment Variables
+
+### Required Variables
+
+| Variable | Value | Description | Source |
+|----------|-------|-------------|--------|
+| `BACKEND_URL` | `http://todo-chatbot-backend` | Backend service URL (internal cluster DNS) | Helm template |
+| `PORT` | `3000` | Application listening port | Helm values |
+
+### Optional Variables
+
+| Variable | Default | Description | Source |
+|----------|---------|-------------|--------|
+| `NODE_ENV` | `production` | Node.js environment | Helm values |
+| `LOG_LEVEL` | `info` | Application logging level | Helm values |
+| `API_TIMEOUT` | `30000` | API request timeout in milliseconds | Helm values |
+
+### Environment Variable Usage
+```yaml
+env:
+- name: BACKEND_URL
+  value: "http://{{ include \"todo-chatbot.backend.fullname\" . }}"
+- name: PORT
+  value: "3000"
+- name: NODE_ENV
+  value: "production"
+```
+
+### Important Notes
+- `BACKEND_URL` is automatically set to backend service name via Helm template
+- Uses internal cluster DNS for backend communication
+- No external URLs needed (backend is internal)
+
+---
+
+## Health Checks
+
+### Liveness Probe
+**Purpose**: Detect if container is alive and restart if unhealthy
+
+| Parameter | Value | Rationale |
+|-----------|-------|-----------|
+| **Type** | HTTP GET | Most informative, checks application health |
+| **Path** | `/health` | Standard health check endpoint |
+| **Port** | 3000 | Application port |
+| **Initial Delay** | 30 seconds | Allow application startup time |
+| **Period** | 10 seconds | Check every 10 seconds |
+| **Timeout** | 5 seconds | Reasonable for local network |
+| **Failure Threshold** | 3 | 30 seconds before restart (3 × 10s) |
+
+**Configuration**:
+```yaml
+livenessProbe:
+  httpGet:
+    path: /health
+    port: 3000
+  initialDelaySeconds: 30
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 3
+```
+
+### Readiness Probe
+**Purpose**: Control traffic routing to healthy pods only
+
+| Parameter | Value | Rationale |
+|-----------|-------|-----------|
+| **Type** | HTTP GET | Checks if ready to serve traffic |
+| **Path** | `/health` | Same endpoint as liveness |
+| **Port** | 3000 | Application port |
+| **Initial Delay** | 5 seconds | Quick readiness check |
+| **Period** | 5 seconds | Frequent checks for traffic control |
+| **Timeout** | 3 seconds | Fast response expected |
+| **Failure Threshold** | 3 | 15 seconds before removing from service |
+
+**Configuration**:
+```yaml
+readinessProbe:
+  httpGet:
+    path: /health
+    port: 3000
+  initialDelaySeconds: 5
+  periodSeconds: 5
+  timeoutSeconds: 3
+  failureThreshold: 3
+```
+
+### Health Endpoint Requirements
+The frontend application MUST implement a `/health` endpoint that:
+- Returns HTTP 200 OK when healthy
+- Returns HTTP 503 Service Unavailable when unhealthy
+- Optionally checks backend connectivity
+- Responds within 3 seconds
+- Does not perform expensive operations
+
+**Example Response**:
+```json
+{
+  "status": "healthy",
+  "timestamp": "2026-02-09T12:00:00Z",
+  "backend": "connected"
+}
+```
+
+---
+
+## Labels and Annotations
+
+### Required Labels
+```yaml
+labels:
+  app.kubernetes.io/name: todo-chatbot
+  app.kubernetes.io/instance: "{{ .Release.Name }}"
+  app.kubernetes.io/version: "{{ .Chart.AppVersion }}"
+  app.kubernetes.io/component: frontend
+  app.kubernetes.io/part-of: todo-chatbot
+  app.kubernetes.io/managed-by: Helm
+  tier: web
+```
+
+### Selector Labels
+```yaml
+matchLabels:
+  app.kubernetes.io/name: todo-chatbot
+  app.kubernetes.io/instance: "{{ .Release.Name }}"
+  app.kubernetes.io/component: frontend
+```
+
+### Annotations
+```yaml
+annotations:
+  description: "Frontend web application for Todo AI Chatbot"
+  phase: "IV"
+  checksum/config: "{{ include (print $.Template.BasePath \"/frontend/deployment.yaml\") . | sha256sum }}"
+```
+
+---
+
+## Security Configuration
+
+### Security Context
+- **Run as non-root**: Yes
+- **Read-only root filesystem**: Recommended (if application supports)
+- **Drop capabilities**: ALL
+- **Allow privilege escalation**: No
+
+**Configuration**:
+```yaml
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+    - ALL
+```
+
+---
+
+## Network Configuration
+
+### Service Access
+- **External Access**: Via NodePort on port 30080
+- **Internal Access**: Via cluster DNS `http://todo-chatbot-frontend`
+- **Port Mapping**: Service port 80 → Container port 3000 → NodePort 30080
+
+### Access Methods
+1. **Minikube Service Command**:
+   ```bash
+   minikube service todo-chatbot-frontend -n todo-chatbot
+   ```
+
+2. **Direct URL**:
+   ```bash
+   http://<minikube-ip>:30080
+   ```
+
+3. **Port Forward** (alternative):
+   ```bash
+   kubectl port-forward svc/todo-chatbot-frontend 8080:80 -n todo-chatbot
+   ```
+
+### Network Policies (Future)
+- Allow ingress from external (NodePort)
+- Allow egress to backend service
+- Deny all other traffic
+
+---
+
+## Dependencies
+
+### External Dependencies
+- None (frontend is externally accessible)
+
+### Internal Dependencies
+- **Backend Service**: http://todo-chatbot-backend
+  - **Type**: HTTP
+  - **Port**: 80
+  - **Availability**: Must be accessible from frontend pods
+  - **Timeout**: 30 seconds
+  - **Retry**: 3 attempts
+
+---
+
+## Monitoring and Observability
+
+### Metrics (Future)
+- Page load time
+- API request count
+- API request duration
+- Error rate
+- User session count
+
+### Logging
+- **Level**: info (configurable via LOG_LEVEL)
+- **Format**: JSON structured logs
+- **Output**: stdout/stderr
+- **Fields**: timestamp, level, message, request_id, user_id
+
+---
+
+## Static Asset Serving
+
+### Asset Types
+- HTML pages
+- JavaScript bundles
+- CSS stylesheets
+- Images and icons
+- Fonts
+
+### Caching Strategy
+- Static assets should have cache headers
+- HTML should not be cached (or short cache)
+- Versioned assets can have long cache times
+
+### Compression
+- Enable gzip/brotli compression for text assets
+- Reduces bandwidth and improves load times
+
+---
+
+## Client-Side Routing
+
+### Requirements
+- Support for single-page application (SPA) routing
+- All routes should serve index.html
+- 404 handling for non-existent routes
+- Deep linking support
+
+### Configuration
+If using nginx or similar:
+```nginx
+location / {
+  try_files $uri $uri/ /index.html;
+}
+```
+
+---
+
+## Validation Checklist
+
+- [ ] Service type is NodePort
+- [ ] Port mapping is correct (80 → 3000 → 30080)
+- [ ] Resource requests and limits are set
+- [ ] Liveness probe is configured
+- [ ] Readiness probe is configured
+- [ ] Environment variables are set (especially BACKEND_URL)
+- [ ] Labels and selectors match
+- [ ] Security context is configured
+- [ ] Image pull policy is IfNotPresent
+- [ ] Rolling update strategy is configured
+
+---
+
+## Testing Requirements
+
+### Unit Tests
+- Health endpoint returns 200 OK
+- Static assets are served correctly
+- Client-side routing works
+
+### Integration Tests
+- Frontend can reach backend service
+- API requests are sent correctly
+- Responses are handled correctly
+
+### End-to-End Tests
+- User can access frontend from browser
+- User can authenticate through full chain
+- User can perform all CRUD operations
+- UI displays correctly
+
+### Resilience Tests
+- Pod restart on liveness probe failure
+- Traffic routing on readiness probe failure
+- Resource limit enforcement
+- Backend unavailability handling
+
+---
+
+## Browser Compatibility
+
+### Supported Browsers
+- Chrome/Edge (latest 2 versions)
+- Firefox (latest 2 versions)
+- Safari (latest 2 versions)
+
+### Requirements
+- Modern JavaScript (ES6+)
+- CSS3 support
+- WebSocket support (if needed)
+- Local storage support
+
+---
+
+## Performance Requirements
+
+### Load Time
+- Initial page load < 3 seconds
+- Subsequent navigation < 1 second
+- API response rendering < 500ms
+
+### Bundle Size
+- JavaScript bundle < 500KB (gzipped)
+- CSS bundle < 100KB (gzipped)
+- Total page weight < 1MB
+
+---
+
+**Contract Version**: 1.0.0
+**Last Updated**: 2026-02-09
+**Status**: ✅ Approved

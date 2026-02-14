@@ -1,0 +1,8 @@
+# Additional configuration that may need to be added to your existing values.yaml
+
+backend:
+  # Existing backend configuration...
+  env:
+    # Make sure MCP_SERVER_URL is set to the internal service name
+    MCP_SERVER_URL: "http://mcp-server:8002"
+    # Other existing environment variables...

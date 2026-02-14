@@ -1,0 +1,316 @@
+# Backend Service Configuration Contract
+
+**Service**: Backend API
+**Component**: backend
+**Tier**: api
+**Version**: 1.0.0
+
+---
+
+## Service Definition
+
+### Metadata
+- **Name**: todo-chatbot-backend
+- **Component**: backend
+- **Tier**: api
+- **Description**: Backend API service for Todo AI Chatbot that handles business logic and forwards authentication to Phase II service
+
+### Service Type
+- **Type**: ClusterIP (internal only)
+- **Port**: 80
+- **Target Port**: 8000
+- **Protocol**: TCP
+
+---
+
+## Deployment Configuration
+
+### Replicas
+- **Default**: 2
+- **Minimum**: 1
+- **Maximum**: 5 (for local Minikube)
+- **Rationale**: 2 replicas provide basic HA without excessive resource usage
+
+### Update Strategy
+- **Type**: RollingUpdate
+- **Max Surge**: 1
+- **Max Unavailable**: 0
+- **Rationale**: Zero-downtime deployments with gradual rollout
+
+---
+
+## Container Configuration
+
+### Image
+- **Repository**: phase4-backend
+- **Tag**: latest
+- **Pull Policy**: IfNotPresent
+- **Rationale**: Local images in Minikube, no registry pull needed
+
+### Ports
+- **Container Port**: 8000
+- **Protocol**: TCP
+- **Name**: http
+
+---
+
+## Resource Allocation
+
+### Requests (Guaranteed)
+- **CPU**: 100m (0.1 CPU cores)
+- **Memory**: 128Mi
+
+### Limits (Maximum)
+- **CPU**: 200m (0.2 CPU cores)
+- **Memory**: 256Mi
+
+### Rationale
+- Conservative limits suitable for local development
+- Allows 2 replicas within typical Minikube resources (4GB RAM)
+- Prevents resource exhaustion
+- Provides headroom for system components
+
+### Resource Calculation (2 replicas)
+- **Total Requests**: 200m CPU, 256Mi memory
+- **Total Limits**: 400m CPU, 512Mi memory
+
+---
+
+## Environment Variables
+
+### Required Variables
+
+| Variable | Value | Description | Source |
+|----------|-------|-------------|--------|
+| `AUTH_SERVICE_URL` | `https://fozi07-todo-full-stack-app.hf.space` | Phase II authentication service endpoint | Helm values |
+| `PORT` | `8000` | Application listening port | Helm values |
+
+### Optional Variables
+
+| Variable | Default | Description | Source |
+|----------|---------|-------------|--------|
+| `LOG_LEVEL` | `info` | Application logging level (debug, info, warn, error) | Helm values |
+| `NODE_ENV` | `production` | Node.js environment | Helm values |
+| `REQUEST_TIMEOUT` | `30000` | Request timeout in milliseconds | Helm values |
+
+### Environment Variable Usage
+```yaml
+env:
+- name: AUTH_SERVICE_URL
+  value: "https://fozi07-todo-full-stack-app.hf.space"
+- name: PORT
+  value: "8000"
+- name: LOG_LEVEL
+  value: "info"
+```
+
+---
+
+## Health Checks
+
+### Liveness Probe
+**Purpose**: Detect if container is alive and restart if unhealthy
+
+| Parameter | Value | Rationale |
+|-----------|-------|-----------|
+| **Type** | HTTP GET | Most informative, checks application health |
+| **Path** | `/health` | Standard health check endpoint |
+| **Port** | 8000 | Application port |
+| **Initial Delay** | 30 seconds | Allow application startup time |
+| **Period** | 10 seconds | Check every 10 seconds |
+| **Timeout** | 5 seconds | Reasonable for local network |
+| **Failure Threshold** | 3 | 30 seconds before restart (3 × 10s) |
+
+**Configuration**:
+```yaml
+livenessProbe:
+  httpGet:
+    path: /health
+    port: 8000
+  initialDelaySeconds: 30
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 3
+```
+
+### Readiness Probe
+**Purpose**: Control traffic routing to healthy pods only
+
+| Parameter | Value | Rationale |
+|-----------|-------|-----------|
+| **Type** | HTTP GET | Checks if ready to serve traffic |
+| **Path** | `/health` | Same endpoint as liveness |
+| **Port** | 8000 | Application port |
+| **Initial Delay** | 5 seconds | Quick readiness check |
+| **Period** | 5 seconds | Frequent checks for traffic control |
+| **Timeout** | 3 seconds | Fast response expected |
+| **Failure Threshold** | 3 | 15 seconds before removing from service |
+
+**Configuration**:
+```yaml
+readinessProbe:
+  httpGet:
+    path: /health
+    port: 8000
+  initialDelaySeconds: 5
+  periodSeconds: 5
+  timeoutSeconds: 3
+  failureThreshold: 3
+```
+
+### Health Endpoint Requirements
+The backend application MUST implement a `/health` endpoint that:
+- Returns HTTP 200 OK when healthy
+- Returns HTTP 503 Service Unavailable when unhealthy
+- Checks critical dependencies (e.g., Phase II auth service connectivity)
+- Responds within 3 seconds
+- Does not perform expensive operations
+
+**Example Response**:
+```json
+{
+  "status": "healthy",
+  "timestamp": "2026-02-09T12:00:00Z",
+  "dependencies": {
+    "auth_service": "connected"
+  }
+}
+```
+
+---
+
+## Labels and Annotations
+
+### Required Labels
+```yaml
+labels:
+  app.kubernetes.io/name: todo-chatbot
+  app.kubernetes.io/instance: "{{ .Release.Name }}"
+  app.kubernetes.io/version: "{{ .Chart.AppVersion }}"
+  app.kubernetes.io/component: backend
+  app.kubernetes.io/part-of: todo-chatbot
+  app.kubernetes.io/managed-by: Helm
+  tier: api
+```
+
+### Selector Labels
+```yaml
+matchLabels:
+  app.kubernetes.io/name: todo-chatbot
+  app.kubernetes.io/instance: "{{ .Release.Name }}"
+  app.kubernetes.io/component: backend
+```
+
+### Annotations
+```yaml
+annotations:
+  description: "Backend API service for Todo AI Chatbot"
+  phase: "IV"
+  checksum/config: "{{ include (print $.Template.BasePath \"/backend/deployment.yaml\") . | sha256sum }}"
+```
+
+---
+
+## Security Configuration
+
+### Security Context
+- **Run as non-root**: Yes
+- **Read-only root filesystem**: Recommended (if application supports)
+- **Drop capabilities**: ALL
+- **Allow privilege escalation**: No
+
+**Configuration**:
+```yaml
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+    - ALL
+```
+
+---
+
+## Network Configuration
+
+### Service Access
+- **Internal Access**: Via cluster DNS `http://todo-chatbot-backend`
+- **External Access**: Not exposed (ClusterIP)
+- **Port Mapping**: Service port 80 → Container port 8000
+
+### Network Policies (Future)
+- Allow ingress from frontend pods only
+- Allow egress to Phase II auth service
+- Deny all other traffic
+
+---
+
+## Dependencies
+
+### External Dependencies
+- **Phase II Authentication Service**: https://fozi07-todo-full-stack-app.hf.space
+  - **Type**: HTTP/HTTPS
+  - **Availability**: Must be accessible from cluster
+  - **Timeout**: 30 seconds
+  - **Retry**: 3 attempts
+
+### Internal Dependencies
+- None (backend is independent)
+
+---
+
+## Monitoring and Observability
+
+### Metrics (Future)
+- Request count
+- Request duration
+- Error rate
+- Authentication success/failure rate
+- Phase II service response time
+
+### Logging
+- **Level**: info (configurable via LOG_LEVEL)
+- **Format**: JSON structured logs
+- **Output**: stdout/stderr
+- **Fields**: timestamp, level, message, request_id, user_id
+
+---
+
+## Validation Checklist
+
+- [ ] Service type is ClusterIP
+- [ ] Port mapping is correct (80 → 8000)
+- [ ] Resource requests and limits are set
+- [ ] Liveness probe is configured
+- [ ] Readiness probe is configured
+- [ ] Environment variables are set
+- [ ] Labels and selectors match
+- [ ] Security context is configured
+- [ ] Image pull policy is IfNotPresent
+- [ ] Rolling update strategy is configured
+
+---
+
+## Testing Requirements
+
+### Unit Tests
+- Health endpoint returns 200 OK
+- Health endpoint checks Phase II connectivity
+- Environment variables are loaded correctly
+
+### Integration Tests
+- Backend can reach Phase II auth service
+- Authentication requests are forwarded correctly
+- Responses are returned to frontend
+
+### Resilience Tests
+- Pod restart on liveness probe failure
+- Traffic routing on readiness probe failure
+- Resource limit enforcement
+
+---
+
+**Contract Version**: 1.0.0
+**Last Updated**: 2026-02-09
+**Status**: ✅ Approved

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 
 export default function SignupPage() {
@@ -43,8 +43,8 @@ export default function SignupPage() {
     }
 
     try {
-      // Call Phase II backend signup endpoint
-      const response = await fetch('http://127.0.0.1:8001/auth/signup', {
+      // Call Phase IV backend proxy endpoint (via relative URL to bypass CORS)
+      const response = await fetch('/api/auth/signup', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -210,7 +210,7 @@ export default function SignupPage() {
           <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
             <h3 className="text-sm font-medium text-blue-800 mb-2">Information</h3>
             <p className="text-xs text-blue-700">
-              <strong>Phase II backend:</strong> Make sure the Phase II backend is running on http://127.0.0.1:8001
+              Authentication is handled via the Phase II backend service on HuggingFace.
             </p>
             <p className="text-xs text-blue-700 mt-1">
               After signup, you'll be redirected to the login page

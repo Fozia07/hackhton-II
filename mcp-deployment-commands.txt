@@ -1,0 +1,31 @@
+# Commands to deploy and verify the MCP server in your Minikube cluster
+
+# 1. Apply the MCP server deployment
+kubectl apply -f mcp-server-deployment.yaml
+
+# 2. Apply the MCP server service
+kubectl apply -f mcp-server-service.yaml
+
+# 3. Verify the deployment is created
+kubectl get deployments -n todo-chatbot mcp-server
+
+# 4. Verify the service is created
+kubectl get services -n todo-chatbot mcp-server
+
+# 5. Check the pods are running
+kubectl get pods -n todo-chatbot -l app=mcp-server
+
+# 6. Check the pod logs
+kubectl logs -n todo-chatbot -l app=mcp-server
+
+# 7. Verify the service endpoints
+kubectl get endpoints -n todo-chatbot mcp-server
+
+# 8. Port forward to test the service (optional)
+kubectl port-forward -n todo-chatbot svc/mcp-server 8002:8002
+
+# 9. Check resource usage
+kubectl top pods -n todo-chatbot -l app=mcp-server
+
+# 10. Verify the backend can reach the MCP server by checking backend logs
+kubectl logs -n todo-chatbot -l app=todo-chatbot-backend

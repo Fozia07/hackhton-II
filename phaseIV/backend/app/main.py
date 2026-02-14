@@ -12,6 +12,7 @@ from app.database.base import create_tables
 
 # Import only the existing chat router from your Phase III structure
 from app.api.v1.endpoints.chat import router as chat_router
+from app.api.v1.endpoints.auth import router as auth_router
 
 # Load .env as early as possible
 load_dotenv()  
@@ -48,6 +49,7 @@ app.add_middleware(
 
 # Include only the Phase III chat router
 app.include_router(chat_router, prefix="/api", tags=["AI Chatbot"])
+app.include_router(auth_router, prefix="/api/auth", tags=["Proxy Authentication"])
 
 # Health check endpoint
 @app.get("/health", tags=["Health"])
